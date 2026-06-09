@@ -94,7 +94,7 @@
     https://github.com/jeevanbisht/GSASxSChecker
 
 .LINK
-    https://learn.microsoft.com/en-us/entra/global-secure-access/troubleshoot/known-issues-client
+    https://learn.microsoft.com/en-us/entra/global-secure-access/troubleshoot-global-secure-access-client-advanced-diagnostics
 #>
 
 [CmdletBinding()]
@@ -828,7 +828,7 @@ details[open] summary { color: var(--cp-accent); }
         <li><div class="reco-icon info">ℹ</div><div>Contact conflicting vendor support for a GSA/Microsoft Entra coexistence guide or exclusion configuration.</div></li>
         <li><div class="reco-icon info">ℹ</div><div>Disable overlapping modules in the 3rd-party product (e.g., turn off its network proxy or web filter if GSA handles that).</div></li>
         <li><div class="reco-icon info">ℹ</div><div>If both products are required, consider moving one to network-level enforcement (proxy) instead of endpoint driver.</div></li>
-        <li><div class="reco-icon info">ℹ</div><div>Reference: <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/troubleshoot/known-issues-client" target="_blank">GSA Client Known Issues - Microsoft Learn</a></div></li>
+        <li><div class="reco-icon info">ℹ</div><div>Reference: <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/troubleshoot-global-secure-access-client-advanced-diagnostics" target="_blank">GSA Client Known Issues - Microsoft Learn</a></div></li>
         <li><div class="reco-icon info">ℹ</div><div>Re-run this report as <strong>Administrator</strong> to get full WFP callout layer enumeration and more accurate results.</div></li>
       </ul>
     </div>

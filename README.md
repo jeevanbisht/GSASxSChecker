@@ -1,4 +1,4 @@
-# GSA SxS Checker
+﻿# GSA SxS Checker
 
 [![PowerShell 5.1+](https://img.shields.io/badge/PowerShell-5.1%2B-blue?logo=powershell)](https://docs.microsoft.com/en-us/powershell/)
 [![Windows](https://img.shields.io/badge/Platform-Windows%2010%2F11-blue?logo=windows)](https://www.microsoft.com/windows)
@@ -151,6 +151,6 @@ MIT — see [LICENSE](LICENSE).
 
 ## 🔗 Related Resources
 
-- [GSA Client known issues & troubleshooting](https://learn.microsoft.com/en-us/entra/global-secure-access/troubleshoot/known-issues-client)
+- [GSA Client known issues & troubleshooting](https://learn.microsoft.com/en-us/entra/global-secure-access/troubleshoot-global-secure-access-client-advanced-diagnostics)
 - [Windows Filtering Platform architecture](https://learn.microsoft.com/en-us/windows/win32/fwp/windows-filtering-platform-start-page)
 - [Global Secure Access documentation](https://learn.microsoft.com/en-us/entra/global-secure-access/)
