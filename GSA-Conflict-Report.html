@@ -1,0 +1,656 @@
+﻿
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GSA Client - WFP Conflict Report</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("clawpilotTheme");
+    const theme = param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177,31,75,0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0,0,0,0.12);
+  --cp-overlay: rgba(255,255,255,0.8);
+  --cp-panel: rgba(255,255,255,0.86);
+  --cp-panel-strong: rgba(255,255,255,0.96);
+  --cp-sheen: rgba(255,255,255,0.55);
+  --cp-highlight: rgba(177,31,75,0.12);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253,142,161,0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0,0,0,0.32);
+  --cp-overlay: rgba(41,41,41,0.88);
+  --cp-panel: rgba(41,41,41,0.72);
+  --cp-panel-strong: rgba(41,41,41,0.96);
+  --cp-sheen: rgba(255,255,255,0.04);
+  --cp-highlight: rgba(253,142,161,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif; background: var(--cp-bg); color: var(--cp-text); font-size: 14px; line-height: 1.6; }
+a { color: var(--cp-link); }
+code, pre { font-family: Consolas, "Courier New", Courier, monospace; }
+
+/* Layout */
+.app { max-width: 1100px; margin: 0 auto; padding: 24px 20px 60px; }
+
+/* Header */
+.header { display: flex; align-items: center; gap: 16px; margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--cp-border); }
+.header-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--cp-accent-soft); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.header-icon svg { width: 24px; height: 24px; stroke: var(--cp-accent); }
+.header-title { font-size: 20px; font-weight: 600; color: var(--cp-text); }
+.header-sub { font-size: 12px; color: var(--cp-text-muted); margin-top: 2px; }
+.header-meta { margin-left: auto; text-align: right; font-size: 12px; color: var(--cp-text-muted); }
+.theme-toggle { margin-left: 12px; padding: 6px 12px; border-radius: 0.625rem; border: 1px solid var(--cp-border); background: var(--cp-surface); color: var(--cp-text); cursor: pointer; font-size: 12px; font-family: inherit; }
+.theme-toggle:hover { border-color: var(--cp-accent); }
+
+/* Risk Banner */
+.risk-banner { border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex; align-items: center; gap: 20px; box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14); }
+.risk-banner.none  { background: var(--cp-surface); border: 1px solid var(--cp-border); }
+.risk-banner.low   { background: rgba(22,163,74,0.08);  border: 1px solid rgba(22,163,74,0.3); }
+.risk-banner.medium{ background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); }
+.risk-banner.high  { background: rgba(220,38,38,0.08);  border: 1px solid rgba(220,38,38,0.3); }
+.risk-dot { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+.risk-dot.none   { background: rgba(100,100,100,0.12); }
+.risk-dot.low    { background: rgba(22,163,74,0.15); }
+.risk-dot.medium { background: rgba(245,158,11,0.15); }
+.risk-dot.high   { background: rgba(220,38,38,0.15); }
+.risk-label { font-size: 18px; font-weight: 700; }
+.risk-label.none   { color: var(--cp-text-muted); }
+.risk-label.low    { color: var(--cp-success); }
+.risk-label.medium { color: var(--cp-warning); }
+.risk-label.high   { color: var(--cp-danger); }
+.risk-desc { font-size: 13px; color: var(--cp-text-soft); margin-top: 3px; }
+.risk-stats { margin-left: auto; display: flex; gap: 16px; }
+.stat-box { text-align: center; }
+.stat-num { font-size: 22px; font-weight: 700; color: var(--cp-text); }
+.stat-lbl { font-size: 11px; color: var(--cp-text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* Admin warning */
+.admin-warn { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.35); border-radius: 0.625rem; padding: 10px 14px; margin-bottom: 20px; font-size: 13px; color: var(--cp-text); display: flex; align-items: center; gap: 8px; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--cp-border); padding-bottom: 0; }
+.tab { padding: 8px 16px; border-radius: 0.625rem 0.625rem 0 0; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--cp-text-muted); border: 1px solid transparent; border-bottom: none; user-select: none; transition: color 0.15s; }
+.tab:hover { color: var(--cp-text); }
+.tab.active { color: var(--cp-accent); border-color: var(--cp-border); border-bottom: 1px solid var(--cp-surface); background: var(--cp-surface); margin-bottom: -1px; }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Cards */
+.card { background: var(--cp-surface); border: 1px solid var(--cp-border); border-radius: 16px; padding: 20px 22px; margin-bottom: 16px; box-shadow: 0 0 2px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.14); }
+.card-title { font-size: 13px; font-weight: 600; color: var(--cp-text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.card-title .count-badge { background: var(--cp-accent-soft); color: var(--cp-accent); border-radius: 999px; padding: 1px 8px; font-size: 11px; font-weight: 700; text-transform: none; letter-spacing: 0; }
+
+/* Finding cards */
+.finding { border-radius: 12px; border: 1px solid var(--cp-border); padding: 16px 18px; margin-bottom: 12px; }
+.finding.high   { border-left: 3px solid var(--cp-danger); }
+.finding.medium { border-left: 3px solid var(--cp-warning); }
+.finding.low    { border-left: 3px solid var(--cp-success); }
+.finding-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.finding-name { font-weight: 600; font-size: 14px; }
+.badge { display: inline-flex; align-items: center; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+.badge-high   { background: rgba(220,38,38,0.12);  color: var(--cp-danger); }
+.badge-medium { background: rgba(245,158,11,0.12); color: var(--cp-warning); }
+.badge-low    { background: rgba(22,163,74,0.12);  color: var(--cp-success); }
+.badge-info   { background: var(--cp-accent-soft); color: var(--cp-accent); }
+.finding-desc { font-size: 13px; color: var(--cp-text-soft); margin-bottom: 10px; }
+.finding-matches { display: flex; flex-wrap: wrap; gap: 8px; }
+.match-group { font-size: 12px; }
+.match-label { color: var(--cp-text-muted); font-weight: 500; }
+.match-val { background: var(--cp-surface-soft); border: 1px solid var(--cp-border); border-radius: 4px; padding: 1px 6px; font-family: Consolas, monospace; font-size: 11px; }
+
+/* Table */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th { background: var(--cp-surface-soft); text-align: left; padding: 8px 12px; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--cp-text-muted); border-bottom: 1px solid var(--cp-border); }
+.data-table td { padding: 8px 12px; border-bottom: 1px solid var(--cp-border); color: var(--cp-text); vertical-align: top; }
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--cp-accent-soft); }
+.mono { font-family: Consolas, monospace; font-size: 12px; color: var(--cp-text-soft); }
+
+/* Recommendation list */
+.reco-list { list-style: none; }
+.reco-list li { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--cp-border); font-size: 13px; }
+.reco-list li:last-child { border-bottom: none; }
+.reco-icon { flex-shrink: 0; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-top: 1px; }
+.reco-icon.action { background: rgba(220,38,38,0.12); color: var(--cp-danger); }
+.reco-icon.info   { background: rgba(0,120,212,0.1);  color: var(--cp-link); }
+.reco-icon.ok     { background: rgba(22,163,74,0.12); color: var(--cp-success); }
+
+/* Empty state */
+.empty { text-align: center; padding: 40px 20px; color: var(--cp-text-muted); font-size: 13px; }
+.empty-icon { font-size: 32px; margin-bottom: 8px; }
+
+/* Collapsible */
+details summary { cursor: pointer; padding: 8px 0; font-weight: 500; font-size: 13px; color: var(--cp-text-soft); user-select: none; }
+details summary:hover { color: var(--cp-text); }
+details[open] summary { color: var(--cp-accent); }
+
+/* ilowfp highlight */
+.ilowfp-alert { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); border-radius: 0.625rem; padding: 12px 16px; margin-bottom: 16px; font-size: 13px; }
+
+@media (max-width: 600px) {
+  .risk-stats { display: none; }
+  .header-meta { display: none; }
+  #sysinfoGrid { grid-template-columns: 1fr !important; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+      </svg>
+    </div>
+    <div>
+      <div class="header-title">GSA Client - WFP Conflict Detection Report</div>
+      <div class="header-sub">Global Secure Access · Windows Filtering Platform Analysis</div>
+    </div>
+    <div class="header-meta" id="metaBlock"></div>
+    <button class="theme-toggle" onclick="toggleTheme()">- Theme</button>
+  </div>
+
+  <!-- Admin warning -->
+  <div class="admin-warn" id="adminWarn" style="display:none">
+    ⚠️ <strong>Limited scan:</strong> Script was not run as Administrator. WFP callout enumeration is unavailable.
+    Re-run with <code>Run as Administrator</code> for full results including kernel-level callout detection.
+  </div>
+
+  <!-- ilowfp alert -->
+  <div class="ilowfp-alert" id="ilowfpAlert" style="display:none">
+    - <strong>ilowfp.sys detected</strong> - An unrecognized WFP callout driver (<code>ilowfp.sys</code>) is running on this machine.
+    This driver is not from a known vendor. Investigate its origin via <code>Get-AuthenticodeSignature C:\Windows\System32\drivers\ilowfp.sys</code>
+    and verify it is not interfering with GSA traffic.
+  </div>
+
+  <!-- Risk Banner -->
+  <div class="risk-banner" id="riskBanner">
+    <div class="risk-dot" id="riskDot"></div>
+    <div>
+      <div class="risk-label" id="riskLabel"></div>
+      <div class="risk-desc" id="riskDesc"></div>
+    </div>
+    <div class="risk-stats">
+      <div class="stat-box"><div class="stat-num" id="statFindings">0</div><div class="stat-lbl">Conflicts Found</div></div>
+      <div class="stat-box"><div class="stat-num" id="statCallouts">0</div><div class="stat-lbl">WFP Callouts</div></div>
+      <div class="stat-box"><div class="stat-num" id="statProviders">0</div><div class="stat-lbl">WFP Providers</div></div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('summary')">Summary</div>
+    <div class="tab" onclick="showTab('findings')">Findings</div>
+    <div class="tab" onclick="showTab('wfp')">WFP Details</div>
+    <div class="tab" onclick="showTab('drivers')">Kernel Drivers</div>
+    <div class="tab" onclick="showTab('sysinfo')">System Info</div>
+    <div class="tab" onclick="showTab('remediation')">Remediation</div>
+  </div>
+
+  <!-- TAB: Summary -->
+  <div class="tab-panel active" id="tab-summary">
+    <div class="card">
+      <div class="card-title">What This Report Shows</div>
+      <p style="font-size:13px;color:var(--cp-text-soft);line-height:1.7">
+        This report scans for kernel-mode WFP (Windows Filtering Platform) callout drivers and services
+        that are known to conflict with the <strong>Microsoft Global Secure Access (GSA) client</strong>.
+        GSA uses a WFP callout driver to intercept and tunnel traffic. When another product registers
+        competing callouts at the same network layers, traffic can be silently dropped, tunnels fail to
+        establish, or the machine may become unstable.
+      </p>
+    </div>
+
+    <div class="card" id="summaryFindings">
+      <div class="card-title">Detected Conflicts <span class="count-badge" id="summaryBadge">0</span></div>
+      <div id="summaryList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Quick Machine Snapshot</div>
+      <div id="machineTable"></div>
+    </div>
+  </div>
+
+  <!-- TAB: Findings -->
+  <div class="tab-panel" id="tab-findings">
+    <div id="findingsList"></div>
+    <div class="empty" id="findingsEmpty" style="display:none">
+      <div class="empty-icon">✅</div>
+      No conflicting vendor products detected on this machine.
+    </div>
+  </div>
+
+  <!-- TAB: WFP Details -->
+  <div class="tab-panel" id="tab-wfp">
+    <div class="card">
+      <div class="card-title">WFP Callout Drivers <span class="count-badge" id="calloutBadge">0</span></div>
+      <div id="calloutTable"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">WFP Providers <span class="count-badge" id="providerBadge">0</span></div>
+      <div id="providerTable"></div>
+    </div>
+  </div>
+
+  <!-- TAB: Kernel Drivers -->
+  <div class="tab-panel" id="tab-drivers">
+    <div class="card">
+      <div class="card-title">Non-Microsoft Running Kernel Drivers <span class="count-badge" id="driverBadge">0</span></div>
+      <p style="font-size:12px;color:var(--cp-text-muted);margin-bottom:12px">
+        All running kernel-mode drivers not signed by Microsoft. Any of these registering WFP callouts could interfere with GSA.
+      </p>
+      <div id="driverTable"></div>
+    </div>
+  </div>
+
+  <!-- TAB: System Info -->
+  <div class="tab-panel" id="tab-sysinfo">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" id="sysinfoGrid">
+      <div class="card" id="siIdentity">
+        <div class="card-title">Identity</div>
+        <div id="siIdentityTable"></div>
+      </div>
+      <div class="card" id="siOS">
+        <div class="card-title">Operating System</div>
+        <div id="siOSTable"></div>
+      </div>
+      <div class="card" id="siHW">
+        <div class="card-title">Hardware</div>
+        <div id="siHWTable"></div>
+      </div>
+      <div class="card" id="siRuntime">
+        <div class="card-title">Runtime &amp; Environment</div>
+        <div id="siRuntimeTable"></div>
+      </div>
+    </div>
+
+    <!-- GSA Client full card — full width -->
+    <div class="card" style="margin-top:0">
+      <div class="card-title">Global Secure Access Client <span id="gsaHealthBadge"></span></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--cp-text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Installation</div>
+          <div id="gsaInstallTable"></div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:600;color:var(--cp-text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Tunnel Channels</div>
+          <div id="gsaChannelTable"></div>
+        </div>
+      </div>
+      <div style="margin-top:16px">
+        <div style="font-size:11px;font-weight:600;color:var(--cp-text-muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Services</div>
+        <div id="gsaServicesTable"></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:0">
+      <div class="card-title">Network Adapters <span class="count-badge" id="netBadge">0</span></div>
+      <div id="netTable"></div>
+    </div>
+  </div>
+
+  <!-- TAB: Remediation -->
+  <div class="tab-panel" id="tab-remediation">
+    <div class="card">
+      <div class="card-title">Recommended Actions</div>
+      <ul class="reco-list" id="recoList"></ul>
+    </div>
+    <div class="card">
+      <div class="card-title">General Guidance</div>
+      <ul class="reco-list">
+        <li><div class="reco-icon info">ℹ</div><div>Contact conflicting vendor support for a GSA/Microsoft Entra coexistence guide or exclusion configuration.</div></li>
+        <li><div class="reco-icon info">ℹ</div><div>Disable overlapping modules in the 3rd-party product (e.g., turn off its network proxy or web filter if GSA handles that).</div></li>
+        <li><div class="reco-icon info">ℹ</div><div>If both products are required, consider moving one to network-level enforcement (proxy) instead of endpoint driver.</div></li>
+        <li><div class="reco-icon info">ℹ</div><div>Reference: <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/troubleshoot/known-issues-client" target="_blank">GSA Client Known Issues - Microsoft Learn</a></div></li>
+        <li><div class="reco-icon info">ℹ</div><div>Re-run this report as <strong>Administrator</strong> to get full WFP callout layer enumeration and more accurate results.</div></li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Diagnostic Commands</div>
+      <pre style="background:var(--cp-surface-soft);border:1px solid var(--cp-border);border-radius:8px;padding:14px;font-size:12px;overflow-x:auto;line-height:1.7"># Full WFP state dump (run as Admin)
+netsh wfp show state file=C:\temp\wfpstate.xml
+
+# Check WFP filter weights and layers
+netsh wfp show filters file=C:\temp\wfpfilters.xml
+
+# Verify GSA tunnel driver
+Get-WmiObject Win32_SystemDriver | Where-Object { $_.Name -like "*global*secure*" -or $_.DisplayName -like "*GSA*" }
+
+# Investigate unknown driver signature
+Get-AuthenticodeSignature C:\Windows\System32\drivers\ilowfp.sys
+
+# List all running non-MS drivers
+Get-WmiObject Win32_SystemDriver | Where-Object { $_.State -eq 'Running' } | ForEach-Object {
+    $sig = (Get-AuthenticodeSignature ($_.PathName -replace '"','') -EA SilentlyContinue).SignerCertificate.Subject
+    [PSCustomObject]@{ Name=$_.Name; Signer=$sig }
+} | Where-Object { $_.Signer -notmatch 'Microsoft' }</pre>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+// ─── Embedded data ────────────────────────────────────────────────────────────
+const META        = {"gsaInstallDate":"2026-05-03","joinType":"Entra ID Joined (Cloud-only)","diskSystem":"1547.4 GB free of 1906.7 GB (C:)","model":"21QSS08A00","reportTime":"2026-01-15 09:00:00","overallRisk":"None","gsaVersion":"2.28.96","manufacturer":"LENOVO","findingCount":0,"psVersion":"5.1.26100.8650","osDisplayVersion":"25H2","entraPrtStatus":"YES","osInstallDate":"2025-11-14","cpu":"AMD Ryzen AI 7 PRO 350 w/ Radeon 860M","osUptime":"1d 1h 0m","wfpCalloutCount":0,"entraTenantId":"xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx","entraTenantName":"Contoso Ltd","osLastBoot":"2026-01-15 08:00:00","machine":"CONTOSO-PC01","gsaStatus":"v2.28.96 - Healthy","systemType":"x64","user":"sam.smith","os":"Microsoft Windows 11 Enterprise","cpuCores":"8 cores / 16 threads","osEdition":"Enterprise","gsaInstalled":true,"userFull":"CONTOSO\\sam.smith","wfpProviderCount":0,"ramGB":"55.6 GB","osVersion":"10.0.26200","dotNetVersion":"4.8.1+","ilowfpDetected":true,"domainRole":"Member Workstation","osBuild":"26200.8650","gsaPublisher":"Microsoft Corporation","isAdmin":true,"gsaProductCode":"{XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX}","gsaFileVersion":"2.28.96.0","gsaHealth":"Healthy","gsaDriverStatus":"Running / OK","gsaInstallPath":"C:\\Program Files\\Global Secure Access Client","reportTimeUtc":"2026-01-15 17:00:00 UTC","domain":"CONTOSO"};
+const FINDINGS    = [];
+const CALLOUTS    = [];
+const PROVIDERS   = [];
+const DRIVERS     = [];
+const NET_ADAPTERS= [{"Description":"MediaTek Wi-Fi 7 MT7925 Wireless LAN Card","IPAddress":"10.0.0.42","MACAddress":"AA:BB:CC:DD:EE:FF","DHCPEnabled":"Yes","DefaultGW":"10.0.0.1","DNSServers":"10.0.0.1"}];
+const GSA_SERVICES= [{"Name":"GlobalSecureAccessClientManagerService","DisplayName":"Global Secure Access Client Manager Service","Status":"Running","StartType":"Automatic"},{"Name":"GlobalSecureAccessEngineService","DisplayName":"Global Secure Access Engine Service","Status":"Running","StartType":"Automatic"},{"Name":"GlobalSecureAccessForwardingProfileService","DisplayName":"Global Secure Access Forwarding Profile Service","Status":"Running","StartType":"Automatic"},{"Name":"GlobalSecureAccessTunnelingService","DisplayName":"Global Secure Access Tunneling Service","Status":"Running","StartType":"Automatic"}];
+const GSA_CHANNELS= [{"Channel":"M365","Status":"Connected","LastSeen":"2026-06-09 12:40:24","EventId":142},{"Channel":"Internet","Status":"Connected","LastSeen":"2026-06-09 12:40:24","EventId":142},{"Channel":"Private","Status":"Connected","LastSeen":"2026-06-09 12:40:24","EventId":142},{"Channel":"Entra","Status":"Connected","LastSeen":"2026-06-09 12:39:14","EventId":142}];
+
+// ─── Theme ────────────────────────────────────────────────────────────────────
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute("data-theme");
+  document.documentElement.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+}
+
+// ─── Tabs ─────────────────────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.getElementById("tab-" + name).classList.add("active");
+  const tabs = document.querySelectorAll(".tab");
+  const map = { summary:0, findings:1, wfp:2, drivers:3, sysinfo:4, remediation:5 };
+  tabs[map[name]].classList.add("active");
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function riskClass(r) { return (r||"none").toLowerCase(); }
+function badgeHtml(risk) {
+  const r = (risk||"").toLowerCase();
+  return `<span class="badge badge-`+r+`">`+esc(risk)+`</span>`;
+}
+function makeTable(cols, rows, emptyMsg) {
+  if (!rows || rows.length === 0) return `<div class="empty"><div class="empty-icon">-</div>${emptyMsg||"No data"}</div>`;
+  let h = `<table class="data-table"><thead><tr>` + cols.map(c=>`<th>${esc(c.label)}</th>`).join("") + `</tr></thead><tbody>`;
+  rows.forEach(r => {
+    h += `<tr>` + cols.map(c => {
+      const v = r[c.key] != null ? r[c.key] : "";
+      const cls = c.mono ? ' class="mono"' : '';
+      return `<td${cls}>${c.html ? c.html(v,r) : esc(String(v))}</td>`;
+    }).join("") + `</tr>`;
+  });
+  return h + `</tbody></table>`;
+}
+function kvTable(rows) {
+  return `<table class="data-table">` +
+    rows.map(([k,v]) => `<tr><td style="font-weight:600;width:150px;white-space:nowrap">${esc(k)}</td><td>${v}</td></tr>`).join("") +
+    `</table>`;
+}
+
+// ─── Risk banner ──────────────────────────────────────────────────────────────
+const riskEmoji = { none:"OK", low:"LOW", medium:"MED", high:"HIGH" };
+const riskText  = {
+  none:   "No conflicts detected - GSA Client should operate normally.",
+  low:    "Low-risk products detected - monitor for intermittent issues.",
+  medium: "Potential conflicts detected - test GSA connectivity carefully.",
+  high:   "High-risk conflicts detected - GSA Client may not function correctly."
+};
+const rc = riskClass(META.overallRisk);
+document.getElementById("riskBanner").className = "risk-banner " + rc;
+document.getElementById("riskDot").className    = "risk-dot " + rc;
+document.getElementById("riskDot").textContent  = riskEmoji[rc] || "?";
+document.getElementById("riskLabel").className  = "risk-label " + rc;
+document.getElementById("riskLabel").textContent= (META.overallRisk||"None") + " Risk";
+document.getElementById("riskDesc").textContent = riskText[rc] || "";
+document.getElementById("statFindings").textContent  = META.findingCount || 0;
+document.getElementById("statCallouts").textContent  = META.wfpCalloutCount || 0;
+document.getElementById("statProviders").textContent = META.wfpProviderCount || 0;
+
+// ─── Header meta ──────────────────────────────────────────────────────────────
+document.getElementById("metaBlock").innerHTML =
+  `<div style="font-weight:600">${esc(META.machine)}</div>` +
+  `<div>${esc(META.userFull || META.user)}</div>` +
+  `<div>${esc(META.reportTime)}</div>`;
+
+if (!META.isAdmin) document.getElementById("adminWarn").style.display = "flex";
+if (META.ilowfpDetected) document.getElementById("ilowfpAlert").style.display = "block";
+
+// ─── Summary tab ──────────────────────────────────────────────────────────────
+document.getElementById("summaryBadge").textContent = FINDINGS.length;
+const machineRows = [
+  ["Machine",        esc(META.machine)],
+  ["User",           esc(META.userFull || META.user)],
+  ["Join Type",      META.joinType ? esc(META.joinType) : "N/A"],
+  ["Domain / Role",  esc((META.domain||"") + (META.domainRole ? " — " + META.domainRole : ""))],
+  ["Report Time",    esc(META.reportTime) + `<span style="color:var(--cp-text-muted);font-size:11px;margin-left:8px">${esc(META.reportTimeUtc||"")}</span>`],
+  ["OS",             esc(META.os) + (META.osDisplayVersion ? ` <span style="color:var(--cp-text-muted)">(${esc(META.osDisplayVersion)})</span>` : "")],
+  ["Build",          `<span class="mono">${esc(META.osBuild)}</span> <span style="color:var(--cp-text-muted);font-size:11px">${esc(META.osEdition||"")}</span>`],
+  ["GSA Version",    META.gsaInstalled
+                      ? `<strong>${esc(META.gsaVersion)}</strong> <span style="color:var(--cp-text-muted);font-size:11px">${esc(META.gsaInstallDate ? "installed " + META.gsaInstallDate : "")}</span>`
+                      : '<span style="color:var(--cp-danger)">Not Installed</span>'],
+  ["GSA Health",     esc(META.gsaHealth||"Unknown")],
+  ["Admin Scan",     META.isAdmin ? "Yes — full WFP callout data available" : "No — re-run as Administrator for complete results"],
+  ["Overall Risk",   META.overallRisk || "None"],
+];
+document.getElementById("machineTable").innerHTML = kvTable(machineRows);
+
+const summaryList = document.getElementById("summaryList");
+if (FINDINGS.length === 0) {
+  summaryList.innerHTML = `<div class="empty"><div class="empty-icon">-</div>No known conflicting products detected.</div>`;
+} else {
+  summaryList.innerHTML = FINDINGS.map(f =>
+    `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--cp-border)">
+      ${badgeHtml(f.Risk)}
+      <strong style="font-size:13px">${esc(f.Vendor)}</strong>
+      <span style="font-size:12px;color:var(--cp-text-soft)">${esc(f.MatchedDrivers||f.MatchedServices||"")}</span>
+    </div>`
+  ).join("") + `<div style="padding-top:10px;font-size:12px;color:var(--cp-text-muted)">Switch to the <strong>Findings</strong> tab for full details and the <strong>Remediation</strong> tab for next steps.</div>`;
+}
+
+// ─── Findings tab ─────────────────────────────────────────────────────────────
+const findingsList = document.getElementById("findingsList");
+if (FINDINGS.length === 0) {
+  document.getElementById("findingsEmpty").style.display = "block";
+} else {
+  findingsList.innerHTML = FINDINGS.map(f => {
+    const rc2 = riskClass(f.Risk);
+    const matches = [
+      f.MatchedDrivers  ? `<span class="match-group"><span class="match-label">Drivers: </span><span class="match-val">${esc(f.MatchedDrivers)}</span></span>` : "",
+      f.MatchedServices ? `<span class="match-group"><span class="match-label">Services: </span><span class="match-val">${esc(f.MatchedServices)}</span></span>` : "",
+      f.MatchedWfp      ? `<span class="match-group"><span class="match-label">WFP: </span><span class="match-val">${esc(f.MatchedWfp)}</span></span>` : "",
+    ].filter(Boolean).join(" ");
+    return `<div class="finding ${rc2}">
+      <div class="finding-header">
+        <div class="finding-name">${esc(f.Vendor)}</div>
+        ${badgeHtml(f.Risk)} <span class="badge badge-info">WFP Conflict</span>
+      </div>
+      <div class="finding-desc">${esc(f.Description)}</div>
+      <div class="finding-matches">${matches || '<span style="color:var(--cp-text-muted);font-size:12px">No specific driver/service match - detected via name pattern.</span>'}</div>
+    </div>`;
+  }).join("");
+}
+
+// ─── WFP tab ──────────────────────────────────────────────────────────────────
+document.getElementById("calloutBadge").textContent  = CALLOUTS.length;
+document.getElementById("providerBadge").textContent = PROVIDERS.length;
+document.getElementById("calloutTable").innerHTML = makeTable(
+  [{label:"Name",key:"Name"},{label:"Description",key:"Description"},{label:"Key",key:"Key",mono:true}],
+  CALLOUTS, "No WFP callouts found. Run as Administrator to enumerate callouts."
+);
+document.getElementById("providerTable").innerHTML = makeTable(
+  [{label:"Provider",key:"Name"},{label:"Description",key:"Description"},{label:"Flags",key:"Flags",mono:true}],
+  PROVIDERS, "No WFP providers found. Run as Administrator to enumerate providers."
+);
+
+// ─── Drivers tab ─────────────────────────────────────────────────────────────
+document.getElementById("driverBadge").textContent = DRIVERS.length;
+document.getElementById("driverTable").innerHTML = makeTable(
+  [{label:"Name",key:"Name",mono:true},{label:"Display Name",key:"DisplayName"},{label:"Signer",key:"Signer"},{label:"Path",key:"Path",mono:true}],
+  DRIVERS, "No non-Microsoft drivers found."
+);
+
+// ─── System Info tab ─────────────────────────────────────────────────────────
+document.getElementById("siIdentityTable").innerHTML = kvTable([
+  ["Machine Name",    esc(META.machine)],
+  ["User (DOMAIN)",   esc(META.userFull || META.user)],
+  ["Join Type",       (() => {
+      const jt = META.joinType || "Unknown";
+      const cls = jt.includes("Entra") ? "low" : jt.includes("Domain") ? "medium" : "high";
+      return '<span class="badge badge-' + cls + '">' + esc(jt) + '</span>';
+  })()],
+  ["Tenant",          META.entraTenantName ? esc(META.entraTenantName) + '<span style="color:var(--cp-text-muted);font-size:11px;margin-left:6px">' + esc(META.entraTenantId) + '</span>' : '<span style="color:var(--cp-text-muted)">N/A</span>'],
+  ["Entra PRT",       META.entraPrtStatus ? esc(META.entraPrtStatus) : '<span style="color:var(--cp-text-muted)">N/A</span>'],
+  ["Domain",          esc(META.domain||"N/A")],
+  ["Domain Role",     esc(META.domainRole||"N/A")],
+]);
+document.getElementById("siOSTable").innerHTML = kvTable([
+  ["OS",              esc(META.os)],
+  ["Edition",         esc(META.osEdition||"N/A")],
+  ["Version",         `<span class="mono">${esc(META.osVersion||"")}</span>`],
+  ["Build",           `<span class="mono">${esc(META.osBuild||"")}</span>` + (META.osDisplayVersion ? ` <span style="color:var(--cp-text-muted)">${esc(META.osDisplayVersion)}</span>` : "")],
+  ["Install Date",    esc(META.osInstallDate||"N/A")],
+  ["Last Boot",       esc(META.osLastBoot||"N/A")],
+  ["Uptime",          esc(META.osUptime||"N/A")],
+]);
+document.getElementById("siHWTable").innerHTML = kvTable([
+  ["Manufacturer",    esc(META.manufacturer||"N/A")],
+  ["Model",           esc(META.model||"N/A")],
+  ["Architecture",    esc(META.systemType||"N/A")],
+  ["CPU",             esc(META.cpu||"N/A")],
+  ["CPU Cores",       esc(META.cpuCores||"N/A")],
+  ["RAM",             esc(META.ramGB||"N/A")],
+  ["System Disk",     esc(META.diskSystem||"N/A")],
+]);
+document.getElementById("siRuntimeTable").innerHTML = kvTable([
+  ["PowerShell",      esc(META.psVersion||"N/A")],
+  [".NET Framework",  esc(META.dotNetVersion||"N/A")],
+  ["Admin Scan",      META.isAdmin ? "Yes — full WFP data" : "No — limited scan"],
+  ["Report Time",     esc(META.reportTime||"")],
+  ["Report Time UTC", esc(META.reportTimeUtc||"")],
+]);
+
+// ─── GSA Client card ──────────────────────────────────────────────────────────
+const gsaHealthClass = { "Healthy":"low", "Not Installed":"high", "Degraded - service(s) not running":"high" };
+const ghc = gsaHealthClass[META.gsaHealth] || "medium";
+document.getElementById("gsaHealthBadge").outerHTML =
+  `<span id="gsaHealthBadge" class="badge badge-${ghc}" style="margin-left:8px">${esc(META.gsaHealth||"Unknown")}</span>`;
+
+document.getElementById("gsaInstallTable").innerHTML = kvTable([
+  ["Installed",       META.gsaInstalled ? "Yes" : "No"],
+  ["Version",         META.gsaVersion ? `<strong style="font-size:15px">${esc(META.gsaVersion)}</strong>` : '<span style="color:var(--cp-text-muted)">N/A</span>'],
+  ["File Version",    META.gsaFileVersion && META.gsaFileVersion !== META.gsaVersion ? `<span class="mono">${esc(META.gsaFileVersion)}</span>` : '<span style="color:var(--cp-text-muted)">same as package</span>'],
+  ["Publisher",       esc(META.gsaPublisher||"N/A")],
+  ["Install Date",    esc(META.gsaInstallDate||"N/A")],
+  ["Install Path",    `<span class="mono" style="font-size:11px">${esc(META.gsaInstallPath||"N/A")}</span>`],
+  ["Driver",          esc(META.gsaDriverStatus||"N/A")],
+  ["Product Code",    `<span class="mono" style="font-size:11px">${esc(META.gsaProductCode||"N/A")}</span>`],
+]);
+
+const chArr = Array.isArray(GSA_CHANNELS) ? GSA_CHANNELS : (GSA_CHANNELS ? [GSA_CHANNELS] : []);
+document.getElementById("gsaChannelTable").innerHTML = makeTable(
+  [
+    { label:"Channel", key:"Channel" },
+    { label:"Status",  key:"Status",  html:(v) => {
+        const cls = v==="Connected" ? "low" : v==="No recent event" ? "medium" : "high";
+        return `<span class="badge badge-${cls}">${esc(v)}</span>`;
+    }},
+    { label:"Last Event", key:"LastSeen", mono:true },
+    { label:"Event ID",   key:"EventId",  mono:true },
+  ],
+  chArr, "No channel data available."
+);
+
+const svcArr = Array.isArray(GSA_SERVICES) ? GSA_SERVICES : (GSA_SERVICES ? [GSA_SERVICES] : []);
+document.getElementById("gsaServicesTable").innerHTML = makeTable(
+  [
+    { label:"Service Name",  key:"Name",        mono:true },
+    { label:"Display Name",  key:"DisplayName" },
+    { label:"Status",        key:"Status", html:(v) => {
+        const cls = v==="Running" ? "low" : "high";
+        return `<span class="badge badge-${cls}">${esc(v)}</span>`;
+    }},
+    { label:"Start Type",    key:"StartType" },
+  ],
+  svcArr, "No GSA services found."
+);
+
+// Network adapters
+const netArr = Array.isArray(NET_ADAPTERS) ? NET_ADAPTERS : (NET_ADAPTERS ? [NET_ADAPTERS] : []);
+document.getElementById("netBadge").textContent = netArr.length;
+document.getElementById("netTable").innerHTML = makeTable(
+  [
+    {label:"Adapter",     key:"Description"},
+    {label:"IP Address",  key:"IPAddress",  mono:true},
+    {label:"MAC",         key:"MACAddress", mono:true},
+    {label:"DHCP",        key:"DHCPEnabled"},
+    {label:"Default GW",  key:"DefaultGW",  mono:true},
+    {label:"DNS Servers", key:"DNSServers",  mono:true},
+  ],
+  netArr, "No active network adapters found."
+);
+
+// ─── Remediation tab ──────────────────────────────────────────────────────────
+const recoList = document.getElementById("recoList");
+const recos = [];
+if (FINDINGS.length === 0) {
+  recos.push({ icon:"ok", text:"No conflicts detected. No immediate action required." });
+  recos.push({ icon:"info", text:"Re-run periodically when new security software is installed." });
+} else {
+  FINDINGS.forEach(f => {
+    const severity = f.Risk.toLowerCase();
+    recos.push({ icon: severity === "high" ? "action" : "info",
+      text: `<strong>${esc(f.Vendor)}</strong> (${esc(f.Risk)} Risk): Coordinate with your ${esc(f.Vendor)} admin to configure exclusions or disable overlapping WFP modules. Affected: <code>${esc(f.MatchedDrivers||f.MatchedServices||"n/a")}</code>` });
+  });
+  if (!META.isAdmin) {
+    recos.push({ icon:"action", text:"Re-run this script as <strong>Administrator</strong> for a complete WFP callout scan - current results may be incomplete." });
+  }
+}
+recoList.innerHTML = recos.map(r =>
+  `<li><div class="reco-icon ${r.icon}">${r.icon==="action"?"!":r.icon==="ok"?"✓":"ℹ"}</div><div>${r.text}</div></li>`
+).join("");
+</script>
+</body>
+</html>

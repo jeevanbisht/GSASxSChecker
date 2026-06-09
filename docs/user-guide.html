@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GSA SxS Checker — User Guide</title>
+<script>
+  (() => {
+    const param = new URLSearchParams(window.location.search).get("clawpilotTheme");
+    const theme = param || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
+<style>
+:root {
+  color-scheme: light;
+  --cp-bg: #f7f4ef;
+  --cp-bg-elevated: #fcfbf8;
+  --cp-surface: #ffffff;
+  --cp-surface-soft: #f5f5f5;
+  --cp-border: #dedede;
+  --cp-border-strong: #919191;
+  --cp-text: #242424;
+  --cp-text-muted: #5c5c5c;
+  --cp-text-soft: #6f6f6f;
+  --cp-accent: #b11f4b;
+  --cp-accent-hover: #9a1a41;
+  --cp-accent-soft: rgba(177,31,75,0.08);
+  --cp-accent-fg: #ffffff;
+  --cp-success: #16a34a;
+  --cp-danger: #dc2626;
+  --cp-warning: #f59e0b;
+  --cp-link: #0078d4;
+  --cp-shadow: 0 18px 48px rgba(0,0,0,0.12);
+  --cp-panel: rgba(255,255,255,0.86);
+}
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --cp-bg: #3d3b3a;
+  --cp-bg-elevated: #343231;
+  --cp-surface: #292929;
+  --cp-surface-soft: #2e2e2e;
+  --cp-border: #474747;
+  --cp-border-strong: #5f5f5f;
+  --cp-text: #dedede;
+  --cp-text-muted: #919191;
+  --cp-text-soft: #b0b0b0;
+  --cp-accent: #fd8ea1;
+  --cp-accent-hover: #fb7b91;
+  --cp-accent-soft: rgba(253,142,161,0.14);
+  --cp-accent-fg: #1a1a1a;
+  --cp-success: #4ade80;
+  --cp-danger: #f87171;
+  --cp-warning: #fbbf24;
+  --cp-link: #4da6ff;
+  --cp-shadow: 0 18px 48px rgba(0,0,0,0.32);
+  --cp-panel: rgba(41,41,41,0.72);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: "Segoe UI", Aptos, Calibri, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--cp-bg);
+  color: var(--cp-text);
+  line-height: 1.6;
+}
+
+/* ── Header ── */
+.site-header {
+  background: var(--cp-surface);
+  border-bottom: 1px solid var(--cp-border);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+.site-header .logo {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--cp-text);
+  text-decoration: none;
+}
+.site-header .logo .badge {
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: .04em;
+}
+#themeToggle {
+  background: none;
+  border: 1px solid var(--cp-border);
+  border-radius: 0.625rem;
+  padding: 4px 12px;
+  cursor: pointer;
+  color: var(--cp-text-muted);
+  font-size: 0.8rem;
+}
+#themeToggle:hover { background: var(--cp-surface-soft); }
+
+/* ── Hero ── */
+.hero {
+  background: linear-gradient(135deg, var(--cp-accent-soft) 0%, transparent 60%);
+  border-bottom: 1px solid var(--cp-border);
+  padding: 4rem 2rem 3rem;
+  text-align: center;
+}
+.hero h1 {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: var(--cp-text);
+}
+.hero h1 span { color: var(--cp-accent); }
+.hero p {
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  color: var(--cp-text-muted);
+  font-size: 1.05rem;
+}
+.hero .cta-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 0.625rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: opacity .15s, background .15s;
+}
+.btn-primary { background: var(--cp-accent); color: var(--cp-accent-fg); }
+.btn-primary:hover { background: var(--cp-accent-hover); }
+.btn-secondary { background: var(--cp-surface); color: var(--cp-text); border: 1px solid var(--cp-border); }
+.btn-secondary:hover { background: var(--cp-surface-soft); }
+
+/* ── Main content ── */
+.container { max-width: 900px; margin: 0 auto; padding: 3rem 2rem; }
+
+/* ── Steps ── */
+.steps { counter-reset: step; }
+.step-card {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  box-shadow: 0 0 2px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.12);
+  align-items: flex-start;
+}
+.step-num {
+  counter-increment: step;
+  min-width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--cp-accent);
+  color: var(--cp-accent-fg);
+  font-weight: 800;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.step-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 0.4rem; }
+.step-card p { color: var(--cp-text-muted); font-size: 0.92rem; margin-bottom: 0.6rem; }
+
+code, pre {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.87rem;
+}
+.code-block {
+  background: var(--cp-surface-soft);
+  border: 1px solid var(--cp-border);
+  border-radius: 0.625rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+  position: relative;
+}
+.code-block pre { white-space: pre-wrap; word-break: break-word; }
+.copy-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: var(--cp-text-muted);
+}
+.copy-btn:hover { background: var(--cp-surface-soft); }
+
+/* ── Section headings ── */
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--cp-text);
+  margin: 0 0 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--cp-accent-soft);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── Tab guide cards ── */
+.tab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+.tab-card {
+  background: var(--cp-surface);
+  border: 1px solid var(--cp-border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 0 2px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.12);
+}
+.tab-card .tab-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--cp-accent);
+  margin-bottom: 0.3rem;
+}
+.tab-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.4rem; }
+.tab-card p { font-size: 0.85rem; color: var(--cp-text-muted); }
+
+/* ── Risk badges ── */
+.risk { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; }
+.risk-high   { background: rgba(220,38,38,0.12); color: var(--cp-danger); }
+.risk-medium { background: rgba(245,158,11,0.12); color: var(--cp-warning); }
+.risk-low    { background: rgba(22,163,74,0.12);  color: var(--cp-success); }
+.risk-none   { background: var(--cp-surface-soft); color: var(--cp-text-muted); }
+
+/* ── FAQ ── */
+.faq-item { border-bottom: 1px solid var(--cp-border); padding: 1.25rem 0; }
+.faq-item:last-child { border-bottom: none; }
+.faq-q { font-weight: 700; margin-bottom: 0.4rem; cursor: pointer; display: flex; justify-content: space-between; }
+.faq-a { color: var(--cp-text-muted); font-size: 0.92rem; }
+
+/* ── Footer ── */
+footer {
+  background: var(--cp-surface);
+  border-top: 1px solid var(--cp-border);
+  text-align: center;
+  padding: 1.5rem;
+  color: var(--cp-text-muted);
+  font-size: 0.82rem;
+}
+footer a { color: var(--cp-link); text-decoration: none; }
+
+@media (max-width: 600px) {
+  .step-card { flex-direction: column; }
+  .hero { padding: 2.5rem 1rem 2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <a href="#" class="logo">
+    🛡️ GSA SxS Checker
+    <span class="badge">v1.0</span>
+  </a>
+  <button id="themeToggle" onclick="toggleTheme()">☀ / ☾</button>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <h1>Detect <span>WFP Driver Conflicts</span><br>with the GSA Client</h1>
+  <p>
+    A one-command PowerShell script that scans your Windows machine for security
+    products that may conflict with the Microsoft Global Secure Access client —
+    and generates a clear, interactive HTML report.
+  </p>
+  <div class="cta-group">
+    <a href="https://github.com/jeevanbisht/GSASxSChecker" class="btn btn-primary" target="_blank">
+      ⬇ Download from GitHub
+    </a>
+    <a href="#quickstart" class="btn btn-secondary">
+      🚀 Quick Start
+    </a>
+  </div>
+</section>
+
+<!-- Main -->
+<main class="container">
+
+  <!-- What is this -->
+  <section style="margin-bottom:3rem">
+    <h2 class="section-title">🔍 What does this tool do?</h2>
+    <p style="color:var(--cp-text-muted); margin-bottom:1rem">
+      The <strong>Microsoft Global Secure Access (GSA)</strong> client uses a
+      kernel-mode <strong>Windows Filtering Platform (WFP)</strong> driver to
+      securely tunnel your network traffic to Microsoft Entra services.
+      When another security product — such as Forcepoint, Check Point, Zscaler,
+      or Skyhigh — also installs a WFP driver, the two products compete for control
+      of the same network traffic.
+    </p>
+    <p style="color:var(--cp-text-muted); margin-bottom:1rem">
+      The result: the GSA client may fail silently — tunnels don't connect,
+      apps that should be protected stop working, or your machine becomes unstable.
+    </p>
+    <p style="color:var(--cp-text-muted)">
+      <strong>GSA SxS Checker</strong> detects these conflicting drivers in seconds
+      and gives you a clear, actionable report — no special tools needed.
+    </p>
+  </section>
+
+  <!-- Quick Start -->
+  <section id="quickstart" style="margin-bottom:3rem">
+    <h2 class="section-title">🚀 Quick Start (3 steps)</h2>
+    <div class="steps">
+
+      <div class="step-card">
+        <div class="step-num"></div>
+        <div>
+          <h3>Download the script</h3>
+          <p>Open PowerShell and run:</p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre>Invoke-WebRequest -Uri "https://raw.githubusercontent.com/jeevanbisht/GSASxSChecker/main/Get-GSAConflictReport.ps1" -OutFile "Get-GSAConflictReport.ps1"</pre>
+          </div>
+          <p style="margin-top:0.5rem">Or <a href="https://github.com/jeevanbisht/GSASxSChecker" target="_blank" style="color:var(--cp-link)">clone the repository</a> from GitHub.</p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num"></div>
+        <div>
+          <h3>Run as Administrator</h3>
+          <p>
+            Right-click <strong>PowerShell</strong> → <strong>Run as Administrator</strong>,
+            navigate to the folder where you saved the script, then run:
+          </p>
+          <div class="code-block">
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            <pre>.\Get-GSAConflictReport.ps1</pre>
+          </div>
+          <p style="margin-top:0.5rem;font-size:0.82rem;color:var(--cp-text-soft)">
+            ℹ️ Running as Administrator is recommended for full WFP callout data.
+            The script works without elevation but some sections will be empty.
+          </p>
+        </div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-num"></div>
+        <div>
+          <h3>Review your report</h3>
+          <p>
+            The report opens automatically in your browser.
+            If not, open <code>GSA-Conflict-Report.html</code> from the same folder.
+            Navigate the tabs to understand your machine's status.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Understanding the report -->
+  <section style="margin-bottom:3rem">
+    <h2 class="section-title">📋 Understanding the Report</h2>
+
+    <!-- Risk banner -->
+    <h3 style="font-size:1rem;margin-bottom:0.75rem">Risk Banner</h3>
+    <p style="color:var(--cp-text-muted);margin-bottom:1rem">
+      The top of the report shows an overall risk level based on what was found:
+    </p>
+    <div style="display:flex;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.5rem">
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:0.625rem">
+        <span class="risk risk-none">NONE</span>
+        <span style="font-size:0.85rem;color:var(--cp-text-muted)">No conflicts detected. GSA should work normally.</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:0.625rem">
+        <span class="risk risk-low">LOW</span>
+        <span style="font-size:0.85rem;color:var(--cp-text-muted)">Minor overlap. Monitor but may be fine.</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:0.625rem">
+        <span class="risk risk-medium">MEDIUM</span>
+        <span style="font-size:0.85rem;color:var(--cp-text-muted)">Known coexistence issues. Review Remediation tab.</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1rem;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:0.625rem">
+        <span class="risk risk-high">HIGH</span>
+        <span style="font-size:0.85rem;color:var(--cp-text-muted)">Serious conflict. Action required. See Remediation tab.</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <h3 style="font-size:1rem;margin-bottom:0.75rem">Report Tabs</h3>
+    <div class="tab-grid">
+      <div class="tab-card">
+        <div class="tab-label">Tab 1</div>
+        <h4>Summary</h4>
+        <p>Machine snapshot: hostname, user, OS, GSA version, join type, and number of conflicts at a glance.</p>
+      </div>
+      <div class="tab-card">
+        <div class="tab-label">Tab 2</div>
+        <h4>Findings</h4>
+        <p>One card per detected conflict — vendor name, risk level, matched drivers/services, and a plain-English explanation of the issue.</p>
+      </div>
+      <div class="tab-card">
+        <div class="tab-label">Tab 3</div>
+        <h4>WFP Details</h4>
+        <p>Raw Windows Filtering Platform data: all active callout drivers and WFP providers. Requires Administrator. Share with your engineer when escalating.</p>
+      </div>
+      <div class="tab-card">
+        <div class="tab-label">Tab 4</div>
+        <h4>Kernel Drivers</h4>
+        <p>All running non-Microsoft kernel-mode drivers with publisher and digital signature information.</p>
+      </div>
+      <div class="tab-card">
+        <div class="tab-label">Tab 5</div>
+        <h4>System Info</h4>
+        <p>Identity (user, machine, domain, join type), OS version, hardware, GSA client services status, and network adapters.</p>
+      </div>
+      <div class="tab-card">
+        <div class="tab-label">Tab 6</div>
+        <h4>Remediation</h4>
+        <p>Vendor-specific step-by-step actions and PowerShell diagnostic commands you can copy and run.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Advanced usage -->
+  <section style="margin-bottom:3rem">
+    <h2 class="section-title">⚙️ Advanced Options</h2>
+    <div style="display:flex;flex-direction:column;gap:1rem">
+      <div style="padding:1.25rem;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:16px">
+        <h4 style="margin-bottom:0.4rem">Custom report path</h4>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre>.\Get-GSAConflictReport.ps1 -OutputPath "C:\Reports\GSA-$(hostname)-$(Get-Date -f yyyyMMdd).html"</pre>
+        </div>
+      </div>
+      <div style="padding:1.25rem;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:16px">
+        <h4 style="margin-bottom:0.4rem">Silent mode (no browser pop-up)</h4>
+        <p style="color:var(--cp-text-muted);font-size:0.85rem;margin-bottom:0.5rem">Useful for automated helpdesk collection or MDM scripts.</p>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre>.\Get-GSAConflictReport.ps1 -NoBrowser</pre>
+        </div>
+      </div>
+      <div style="padding:1.25rem;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:16px">
+        <h4 style="margin-bottom:0.4rem">View full help</h4>
+        <div class="code-block">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre>Get-Help .\Get-GSAConflictReport.ps1 -Full</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section style="margin-bottom:3rem">
+    <h2 class="section-title">❓ FAQ</h2>
+    <div style="background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:16px;padding:0 1.25rem">
+      <div class="faq-item">
+        <div class="faq-q">Why does the script need Administrator rights?</div>
+        <div class="faq-a">Full WFP callout enumeration (<code>netsh wfp show state</code>) requires access to the Windows Filtering Platform engine, which is restricted to Administrators. Without elevation the script still runs and detects drivers via WMI, but the WFP Callouts and Providers sections of the report will be empty.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Will this script make any changes to my machine?</div>
+        <div class="faq-a">No. The script is <strong>read-only</strong>. It only collects data and generates an HTML report. Nothing is modified, no drivers are unloaded, and no registry changes are made.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">My security software blocked the script — what should I do?</div>
+        <div class="faq-a">Some endpoint protection products flag unsigned PowerShell scripts. You can run it using <code>PowerShell.exe -ExecutionPolicy Bypass -File .\Get-GSAConflictReport.ps1</code>, or review the source on GitHub to confirm it is safe before running.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">The report shows "No conflicts detected" but GSA is still not working.</div>
+        <div class="faq-a">The tool checks against a curated list of known conflicting products. If your issue is caused by an unlisted product, a network configuration issue, or a GSA server-side problem, it may not appear here. Check the <strong>WFP Details</strong> and <strong>Kernel Drivers</strong> tabs for any unknown drivers, and review the <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/troubleshoot/known-issues-client" target="_blank" style="color:var(--cp-link)">GSA known issues page</a>.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I run this on multiple machines at once?</div>
+        <div class="faq-a">Yes — use <code>Invoke-Command -ComputerName PC1,PC2 -FilePath .\Get-GSAConflictReport.ps1 -ArgumentList @{NoBrowser=$true}</code> with PowerShell remoting, or deploy via Intune/SCCM as a detection script. Each machine generates its own report.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Can I share the report with Microsoft Support?</div>
+        <div class="faq-a">Yes — the report is a self-contained HTML file. Before sharing, review it for any sensitive information (IP addresses, usernames). The report does not contain passwords or secrets.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Detected vendors -->
+  <section style="margin-bottom:3rem">
+    <h2 class="section-title">🏢 Detected Vendor Products</h2>
+    <p style="color:var(--cp-text-muted);margin-bottom:1rem">The following vendors have known WFP coexistence issues with the GSA client. The tool checks for their driver/service signatures automatically.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem">
+      <span style="padding:4px 12px;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:6px;font-size:0.85rem">Forcepoint</span>
+      <span style="padding:4px 12px;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:6px;font-size:0.85rem">Check Point</span>
+      <span style="padding:4px 12px;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:6px;font-size:0.85rem">Skyhigh Security</span>
+      <span style="padding:4px 12px;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:6px;font-size:0.85rem">Zscaler</span>
+      <span style="padding:4px 12px;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:6px;font-size:0.85rem">Netskope</span>
+      <span style="padding:4px 12px;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:6px;font-size:0.85rem">Palo Alto Networks</span>
+      <span style="padding:4px 12px;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:6px;font-size:0.85rem">CrowdStrike Falcon</span>
+      <span style="padding:4px 12px;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:6px;font-size:0.85rem">SentinelOne</span>
+      <span style="padding:4px 12px;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:6px;font-size:0.85rem">Broadcom / Symantec</span>
+      <span style="padding:4px 12px;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:6px;font-size:0.85rem">Trend Micro</span>
+      <span style="padding:4px 12px;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:6px;font-size:0.85rem">Cisco Umbrella</span>
+      <span style="padding:4px 12px;background:var(--cp-surface);border:1px solid var(--cp-border);border-radius:6px;font-size:0.85rem">Sophos</span>
+    </div>
+    <p style="color:var(--cp-text-soft);margin-top:0.75rem;font-size:0.82rem">
+      Don't see a vendor? <a href="https://github.com/jeevanbisht/GSASxSChecker/issues" target="_blank" style="color:var(--cp-link)">Open an issue</a> or submit a PR following the <a href="https://github.com/jeevanbisht/GSASxSChecker/blob/main/CONTRIBUTING.md" target="_blank" style="color:var(--cp-link)">contribution guide</a>.
+    </p>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer>
+  <p>
+    GSA SxS Checker &nbsp;·&nbsp;
+    <a href="https://github.com/jeevanbisht/GSASxSChecker" target="_blank">GitHub</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/jeevanbisht/GSASxSChecker/blob/main/LICENSE" target="_blank">MIT License</a>
+    &nbsp;·&nbsp;
+    <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/" target="_blank">Global Secure Access Docs</a>
+  </p>
+</footer>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  html.setAttribute("data-theme", next);
+}
+
+function copyCode(btn) {
+  const pre = btn.closest(".code-block").querySelector("pre");
+  navigator.clipboard.writeText(pre.textContent.trim()).then(() => {
+    btn.textContent = "Copied!";
+    setTimeout(() => btn.textContent = "Copy", 1500);
+  }).catch(() => {
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(pre);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+}
+</script>
+</body>
+</html>
