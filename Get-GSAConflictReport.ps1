@@ -12,7 +12,7 @@
     The GSA client uses a WFP callout driver (GlobalSecureAccessDriver) to intercept
     and tunnel network traffic. When competing products register callouts at the same
     ALE (Application Layer Enforcement) network layers, traffic can be silently
-    dropped, tunnels fail to establish, or the machine becomes unstable.
+    dropped — sometimes a leading cause of tunnels failing to establish, traffic being silently dropped, or the machine becoming unstable.
 
     The generated HTML report includes:
       - Risk banner (None / Low / Medium / High) with conflict count

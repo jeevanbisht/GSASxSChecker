@@ -7,7 +7,7 @@
 
 > **Detect Windows Filtering Platform (WFP) driver conflicts with the Microsoft Global Secure Access (GSA) client — in one command.**
 
-The **Global Secure Access (GSA)** client uses a kernel-mode WFP callout driver to intercept and tunnel network traffic. When competing security products (Forcepoint, Check Point, Zscaler, Skyhigh, and others) register WFP callouts at the same network layers, conflicts arise: tunnels fail to establish, traffic is silently dropped, or the machine becomes unstable.
+The **Global Secure Access (GSA)** client uses a kernel-mode WFP callout driver to intercept and tunnel network traffic. Other security or network access products may register WFP callouts at the same network layers, sometimes leading to conflicts — tunnels fail to establish, traffic is silently dropped, or the machine becomes unstable.
 
 `Get-GSAConflictReport.ps1` scans the local machine, compares running drivers against a curated conflict database, and generates a **self-contained, interactive HTML report** that is both engineering-level detailed and business-user friendly.
 

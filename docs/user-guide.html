@@ -315,13 +315,12 @@ footer a { color: var(--cp-link); text-decoration: none; }
       The <strong>Microsoft Global Secure Access (GSA)</strong> client uses a
       kernel-mode <strong>Windows Filtering Platform (WFP)</strong> driver to
       securely tunnel your network traffic to Microsoft Entra services.
-      When another security product — such as Forcepoint, Check Point, Zscaler,
-      or Skyhigh — also installs a WFP driver, the two products compete for control
-      of the same network traffic.
-    </p>
+      Other security or network access products may also install a WFP driver,
+      competing for control of the same network traffic.</p>
     <p style="color:var(--cp-text-muted); margin-bottom:1rem">
-      The result: the GSA client may fail silently — tunnels don't connect,
-      apps that should be protected stop working, or your machine becomes unstable.
+      This is sometimes a leading cause of the GSA client failing silently —
+      tunnels don't connect, apps that should be protected stop working,
+      or your machine becomes unstable.
     </p>
     <p style="color:var(--cp-text-muted)">
       <strong>GSA SxS Checker</strong> detects these conflicting drivers in seconds
