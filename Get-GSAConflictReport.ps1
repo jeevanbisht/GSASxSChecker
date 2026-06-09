@@ -154,14 +154,14 @@ try {
 } catch { $JoinType = "Unable to determine" }
 
 # OS
-$OSInfo            = Get-WmiObject Win32_OperatingSystem
+$OSInfo            = Get-CimInstance Win32_OperatingSystem
 $OSCaption         = $OSInfo.Caption
 $OSVersion         = $OSInfo.Version
 $OSBuild           = $OSInfo.BuildNumber
-$OSInstallDate     = $OSInfo.ConvertToDateTime($OSInfo.InstallDate).ToString("yyyy-MM-dd")
-$OSLastBoot        = $OSInfo.ConvertToDateTime($OSInfo.LastBootUpTime).ToString("yyyy-MM-dd HH:mm:ss")
-$Uptime            = (Get-Date) - $OSInfo.ConvertToDateTime($OSInfo.LastBootUpTime)
-$UptimeStr         = "{0}d {1}h {2}m" -f [int]$Uptime.TotalDays, $Uptime.Hours, $Uptime.Minutes
+$OSInstallDate     = try { $OSInfo.InstallDate.ToString("yyyy-MM-dd") }   catch { "N/A" }
+$OSLastBoot        = try { $OSInfo.LastBootUpTime.ToString("yyyy-MM-dd HH:mm:ss") } catch { "N/A" }
+$Uptime            = try { (Get-Date) - $OSInfo.LastBootUpTime }          catch { $null }
+$UptimeStr         = if ($Uptime) { "{0}d {1}h {2}m" -f [int]$Uptime.TotalDays, $Uptime.Hours, $Uptime.Minutes } else { "N/A" }
 
 # Windows Update Build Revision & edition
 $WinReg            = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion" -ErrorAction SilentlyContinue
