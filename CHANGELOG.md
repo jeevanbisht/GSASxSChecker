@@ -53,6 +53,29 @@ _(New entries go here during development)_
 
 ---
 
+## [1.4.3] — 2026-06-10
+
+### Fixed
+
+Comprehensive audit of all service and driver patterns — removed every short (≤4 char) or generic substring pattern that could produce false positives via `*pattern*` wildcard matching:
+
+**Service patterns removed:**
+- `"cpd"` from Check Point — could match `AMDCPDService` (AMD Crash Prevention Device) and similar
+- `"amon"` from Check Point — short/generic, collision risk with unrelated monitoring agents
+- `"Orbital"` from Cisco Secure Endpoint services — replaced with `"CiscoOrbital"` (more specific)
+- `"amp"` from Cisco Secure Endpoint drivers — 3-char pattern, high collision risk with unrelated drivers
+
+**Driver patterns removed:**
+- `"amp"` from Cisco Secure Endpoint — 3 chars, matches any driver/component containing "amp"
+- `"sfc"` from Cisco Secure Endpoint — could match Windows system components
+- `"via"` from Aruba VIA — matches VIA Technologies chipset drivers (`viaXxx.sys`)
+- `"epp"` from CoSoSys Endpoint Protector — 3-char generic EPP acronym
+- `"dsp"` from ManageEngine DataSecurity Plus — 3-char generic acronym
+- `"shield"` from Ericom Shield — generic word, collision risk with other security products
+- `"eaa"` from Akamai EAA — 3-char acronym, matches unrelated drivers
+
+---
+
 ## [1.4.2] — 2026-06-10
 
 ### Fixed

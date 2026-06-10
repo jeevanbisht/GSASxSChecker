@@ -75,7 +75,7 @@
     Path to the generated HTML file is written to the host.
 
 .NOTES
-    Version      : 1.4.2
+    Version      : 1.4.3
     Author       : Jeevan Bisht
     Project      : https://github.com/jeevanbisht/GSASxSChecker
     License      : MIT
@@ -113,14 +113,14 @@ param(
     [switch]$NoBrowser
 )
 
-$script:Version = '1.4.2'
+$script:Version = '1.4.3'
 
 # ─── Known conflicting vendors ───────────────────────────────────────────────
 $KnownVendors = @(
 
     # ─── CASB / SWG / SSE ─────────────────────────────────────────────────────
     @{ Name="Forcepoint";     Risk="High";   Drivers=@("fpwfp","fpdodriver","fpepflt","fp_wfp");           Services=@("fpcsvc","FPWFPDriver","ForcePoint");       Desc="Forcepoint Web Security / DLP uses WFP callouts and network interception that may overlap with GSA traffic steering." }
-    @{ Name="Check Point";    Risk="High";   Drivers=@("vsdatant","cpfw","cptlsp","cpepflt");              Services=@("CheckPoint","cpd","amon","CPDA");           Desc="Check Point Endpoint Security registers network filtering components that may interfere with GSA tunnel processing." }
+    @{ Name="Check Point";    Risk="High";   Drivers=@("vsdatant","cpfw","cptlsp","cpepflt");              Services=@("CheckPoint","CPDA");           Desc="Check Point Endpoint Security registers network filtering components that may interfere with GSA tunnel processing." }
     @{ Name="Skyhigh/McAfee"; Risk="High";   Drivers=@("mfewfpk","mfefirek","mfehidk","cfwids");          Services=@("McAfee","Skyhigh","mfevtp","masvc");        Desc="Skyhigh and McAfee network security components may overlap with GSA traffic interception and policy enforcement." }
     @{ Name="Zscaler";        Risk="High";   Drivers=@("zscaler","zsa","ZSADriver");                       Services=@("ZSAService","ZscalerService","ZSTunnel");   Desc="Zscaler Client Connector performs traffic steering, DNS control, and tunnel ownership that may conflict with GSA." }
     @{ Name="Netskope";       Risk="High";   Drivers=@("nssdrv","NetskopeFilter","nswfp");                 Services=@("stAgentSvc","NetskopeService");             Desc="Netskope client intercepts network traffic for CASB and SSE functions and may overlap with GSA." }
@@ -134,7 +134,7 @@ $KnownVendors = @(
     @{ Name="Cisco Secure Client / AnyConnect VPN";    Risk="High";   Drivers=@("acvpnwfp","acsock","vpnva","vpnva64","acnamfd","acwfp"); Services=@("vpnagent","acvpnagent","Cisco AnyConnect Secure Mobility Agent","Cisco Secure Client"); Desc="Cisco VPN client may overlap with GSA routing, DNS, and tunnel establishment." }
     @{ Name="Cisco Secure Client - Umbrella Module";   Risk="High";   Drivers=@("acumbrella","acwfp","csc_umbrella","umbrella");          Services=@("csc_umbrellaagent","Cisco Secure Client - Umbrella","Umbrella_RC","Umbrella Roaming Client"); Desc="Umbrella module provides DNS protection and policy enforcement that may overlap with GSA." }
     @{ Name="Cisco Umbrella Roaming Client";           Risk="High";   Drivers=@("umbrella","opendns","acumbrella");                      Services=@("Umbrella_RC","Umbrella Roaming Client","OpenDNS_Connector"); Desc="Umbrella redirects and protects DNS traffic which may interfere with GSA DNS processing." }
-    @{ Name="Cisco Secure Endpoint";                   Risk="Medium"; Drivers=@("ciscoamp","amp","sfc","immunetprotect","orbital");      Services=@("CiscoAMP","Cisco Secure Endpoint","ImmunetProtect","Orbital"); Desc="Cisco endpoint security components may affect network processing depending on policy." }
+    @{ Name="Cisco Secure Endpoint";                   Risk="Medium"; Drivers=@("ciscoamp","immunetprotect","orbital");      Services=@("CiscoAMP","Cisco Secure Endpoint","ImmunetProtect","CiscoOrbital"); Desc="Cisco endpoint security components may affect network processing depending on policy." }
     @{ Name="Cisco Secure Access";                     Risk="High";   Drivers=@("ciscosecureaccess","ciscoztna","acwfp","acvpnwfp");    Services=@("Cisco Secure Access","CiscoSecureAccess","csc_svr","vpnagent"); Desc="Cisco Secure Access directly overlaps with GSA private access and SSE capabilities." }
     @{ Name="Cisco AnyConnect NVM";                    Risk="Low";    Drivers=@("acnvm","acnamfd","acsock");                            Services=@("acnvmagent","Cisco AnyConnect NVM","Cisco Secure Client NVM"); Desc="Primarily telemetry and visibility focused." }
 
@@ -163,7 +163,7 @@ $KnownVendors = @(
     @{ Name="Appgate SDP"; Risk="High"; Drivers=@("appgate","appgatesdp","agtun"); Services=@("Appgate SDP Client","Appgate SDP Service"); Desc="Appgate SDP provides private access tunnels that may overlap directly with GSA private access." }
 
     # ─── Akamai ─────────────────────────────────────────────────────
-    @{ Name="Akamai Enterprise Application Access"; Risk="Medium"; Drivers=@("akamai","eaa","akamaiaccess"); Services=@("Akamai EAA Client","EAAClient"); Desc="Akamai EAA provides ZTNA functionality and may overlap with GSA private application access." }
+    @{ Name="Akamai Enterprise Application Access"; Risk="Medium"; Drivers=@("akamai","akamaiaccess"); Services=@("Akamai EAA Client","EAAClient"); Desc="Akamai EAA provides ZTNA functionality and may overlap with GSA private application access." }
 
     # ─── Modern ZTNA ──────────────────────────────────────────────────
     @{ Name="Twingate"; Risk="Medium"; Drivers=@("twingate","wintun"); Services=@("Twingate","Twingate Service"); Desc="Twingate private access routing may overlap with GSA depending on configuration." }
@@ -192,17 +192,17 @@ $KnownVendors = @(
     @{ Name="Barracuda VPN";           Risk="High";   Drivers=@("barracuda","barracudavpn");          Services=@("BarracudaVPN","Barracuda Network Access Client");       Desc="VPN tunnel ownership may conflict with GSA routing and traffic interception." }
     @{ Name="WatchGuard Mobile VPN";   Risk="High";   Drivers=@("wgvpn","watchguardvpn");            Services=@("WatchGuard Mobile VPN","WGVPN");                       Desc="SSL/IPsec VPN client with route ownership that may conflict with GSA." }
     @{ Name="Array Networks VPN";      Risk="Medium"; Drivers=@("arrayvpn","agsslvpn");              Services=@("Array Networks SSL VPN","ArrayVPN");                   Desc="Enterprise SSL VPN client that may overlap with GSA private access." }
-    @{ Name="Aruba VIA";               Risk="Medium"; Drivers=@("arubavia","via");                   Services=@("Aruba VIA","ArubaVIAService");                         Desc="Enterprise VPN client which installs virtual adapters and routes that may conflict with GSA." }
+    @{ Name="Aruba VIA";               Risk="Medium"; Drivers=@("arubavia");                   Services=@("Aruba VIA","ArubaVIAService");                         Desc="Enterprise VPN client which installs virtual adapters and routes that may conflict with GSA." }
 
     # ─── DLP / Endpoint Security (Extended) ───────────────────────────────────
     @{ Name="Digital Guardian";        Risk="High";   Drivers=@("dgflt","dgwfp","dgagent");          Services=@("DgService","DigitalGuardian");                         Desc="DLP agent uses kernel filtering and network inspection that may interfere with GSA traffic processing." }
     @{ Name="Proofpoint Endpoint DLP"; Risk="Medium"; Drivers=@("proofpoint","ppwfp");               Services=@("Proofpoint","Proofpoint Endpoint");                    Desc="Endpoint DLP and network monitoring capabilities may affect GSA traffic classification." }
-    @{ Name="CoSoSys Endpoint Protector"; Risk="Medium"; Drivers=@("epp","endpointprotector");       Services=@("EndpointProtector","EPPService");                      Desc="Endpoint DLP solution with network controls that may coexist conditionally with GSA." }
-    @{ Name="ManageEngine DataSecurity Plus"; Risk="Low"; Drivers=@("dsp","manageengine");           Services=@("DataSecurityPlus");                                    Desc="Monitoring and inspection components may coexist but should be inventoried." }
+    @{ Name="CoSoSys Endpoint Protector"; Risk="Medium"; Drivers=@("endpointprotector");       Services=@("EndpointProtector","EPPService");                      Desc="Endpoint DLP solution with network controls that may coexist conditionally with GSA." }
+    @{ Name="ManageEngine DataSecurity Plus"; Risk="Low"; Drivers=@("manageengine");           Services=@("DataSecurityPlus");                                    Desc="Monitoring and inspection components may coexist but should be inventoried." }
 
     # ─── Browser Isolation / SWG ──────────────────────────────────────────────
     @{ Name="Menlo Security";          Risk="Medium"; Drivers=@("menlo","menlofilter");              Services=@("MenloSecurity","MenloAgent");                          Desc="Isolation and secure web gateway functions may affect GSA traffic steering depending on configuration." }
-    @{ Name="Ericom Shield";           Risk="Medium"; Drivers=@("ericom","shield");                  Services=@("EricomShield","ShieldAgent");                          Desc="Browser isolation and secure access platform that may overlap with GSA internet access routing." }
+    @{ Name="Ericom Shield";           Risk="Medium"; Drivers=@("ericom");                  Services=@("EricomShield","ShieldAgent");                          Desc="Browser isolation and secure access platform that may overlap with GSA internet access routing." }
 
     # ─── Overlay Networking / Mesh VPN ────────────────────────────────────────
     @{ Name="ZeroTier";                Risk="Medium"; Drivers=@("zerotier","ztvirtual");             Services=@("ZeroTierOne");                                         Desc="Overlay network with virtual adapters and route injection that may conflict with GSA traffic redirection." }
