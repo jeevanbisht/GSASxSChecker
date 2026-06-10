@@ -1,6 +1,7 @@
 # Generated reports (may contain machine-specific data)
+GSA-Conflict-Report.html
 GSA-Conflict-Report*.html
-!GSA-Conflict-Report.html
+!Sample-GSA-Conflict-Report.html
 
 # PowerShell transcripts / temp
 *.tmp

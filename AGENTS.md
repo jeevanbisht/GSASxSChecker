@@ -9,7 +9,7 @@ Read it before editing any file. It maps every type of change to every file that
 
 ```
 Get-GSAConflictReport.ps1   # ONLY script — intentionally single-file; do not split
-GSA-Conflict-Report.html    # Sample/demo report; regenerate with -NoBrowser after script changes
+Sample-GSA-Conflict-Report.html    # Sample/demo report (anonymized); regenerate with -NoBrowser after script changes
 AGENTS.md                   # This file
 README.md
 CONTRIBUTING.md

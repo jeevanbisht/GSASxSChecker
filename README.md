@@ -127,7 +127,7 @@ The GSA client registers a **kernel-mode WFP callout driver** that operates at W
 
 ## 📸 Sample Report
 
-See [`GSA-Conflict-Report.html`](GSA-Conflict-Report.html) for a live example (anonymized machine data).
+See [`Sample-GSA-Conflict-Report.html`](Sample-GSA-Conflict-Report.html) for a live example (anonymized machine data).
 
 ![GSA SxS Checker Sample Report](Sample.png)
 

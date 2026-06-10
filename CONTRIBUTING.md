@@ -53,7 +53,7 @@ The script generates `GSA-Conflict-Report.html` in the current directory and ope
 ```
 GSASxSChecker/
 ├── Get-GSAConflictReport.ps1   # Main PowerShell detection script
-├── GSA-Conflict-Report.html    # Sample report (anonymized demo data)
+├── Sample-GSA-Conflict-Report.html    # Sample report (anonymized demo data)
 ├── docs/
 │   ├── user-guide.html         # End-user experience guide
 │   └── add-vendor.md           # Step-by-step vendor onboarding guide (canonical reference)
