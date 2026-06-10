@@ -53,6 +53,14 @@ _(New entries go here during development)_
 
 ---
 
+## [1.4.1] — 2026-06-10
+
+### Fixed
+
+- **Open Systems SASE false positive**: removed the 3-character driver pattern `"ose"` which matched AMD audio kernel drivers (e.g. AMDAcpBtAudioService, AtiHDAudioService) via substring wildcard. Driver detection is now scoped to `opensystems` and `osevpn` patterns only.
+
+---
+
 ## [1.4.0] — 2026-06-10
 
 ### Added

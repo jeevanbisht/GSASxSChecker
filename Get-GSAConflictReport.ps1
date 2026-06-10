@@ -75,7 +75,7 @@
     Path to the generated HTML file is written to the host.
 
 .NOTES
-    Version      : 1.4.0
+    Version      : 1.4.1
     Author       : Jeevan Bisht
     Project      : https://github.com/jeevanbisht/GSASxSChecker
     License      : MIT
@@ -113,7 +113,7 @@ param(
     [switch]$NoBrowser
 )
 
-$script:Version = '1.4.0'
+$script:Version = '1.4.1'
 
 # ─── Known conflicting vendors ───────────────────────────────────────────────
 $KnownVendors = @(
@@ -186,7 +186,7 @@ $KnownVendors = @(
     @{ Name="Perimeter 81";            Risk="High";   Drivers=@("perimeter81","p81","wintun");        Services=@("Perimeter81","Perimeter81Service");                    Desc="ZTNA and secure access platform that installs tunnels and traffic steering components similar to GSA." }
     @{ Name="NordLayer";               Risk="High";   Drivers=@("nordlayer","nordlynx","wintun");     Services=@("NordLayer","NordLayerService");                        Desc="Business ZTNA and VPN solution that owns routes and tunnel interfaces." }
     @{ Name="Keeper Connection Manager"; Risk="Medium"; Drivers=@("keeper","keeperztna");             Services=@("Keeper","KeeperConnectionManager");                    Desc="ZTNA capabilities may overlap with GSA private access scenarios." }
-    @{ Name="Open Systems SASE";       Risk="High";   Drivers=@("opensystems","ose","osevpn");        Services=@("OpenSystems","OpenSystemsAgent");                      Desc="Managed SASE client performing traffic steering and filtering that may overlap with GSA." }
+    @{ Name="Open Systems SASE";       Risk="High";   Drivers=@("opensystems","osevpn");           Services=@("OpenSystems","OpenSystemsAgent");                      Desc="Managed SASE client performing traffic steering and filtering that may overlap with GSA." }
 
     # ─── VPN (Extended) ───────────────────────────────────────────────────────
     @{ Name="Barracuda VPN";           Risk="High";   Drivers=@("barracuda","barracudavpn");          Services=@("BarracudaVPN","Barracuda Network Access Client");       Desc="VPN tunnel ownership may conflict with GSA routing and traffic interception." }
