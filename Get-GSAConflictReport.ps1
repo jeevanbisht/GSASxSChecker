@@ -120,6 +120,7 @@ $KnownVendors = @(
     @{ Name="Trellix";         Risk="High";   Drivers=@("mfewfpk","xagt","HipShieldK");                   Services=@("xagt","Trellix","McAfeeDLPAgentService");   Desc="Trellix (McAfee Enterprise) endpoint agent - same WFP conflict as McAfee consumer products." }
     @{ Name="OpenVPN";         Risk="Medium"; Drivers=@("ovpn-dco","tap_ovpnconnect","tapwindows","ovpnco"); Services=@("OpenVPNService","OpenVPN Connect","ovpnhelper"); Desc="OpenVPN tunnel driver (TAP/DCO) uses WFP and may conflict with GSA traffic steering at the redirect layer." }
     @{ Name="WireGuard";       Risk="Medium"; Drivers=@("wintun","WireGuard","wireguard"); Services=@("WireGuardTunnel","WireGuardManager"); Desc="WireGuard Wintun kernel driver registers WFP callouts for tunnel traffic that can conflict with GSA network interception." }
+    @{ Name="Cloudflare One";  Risk="High";   Drivers=@("cfwfpco","cfwfp","cloudflare"); Services=@("CloudflareWARP","WARP","warp-svc"); Desc="Cloudflare One Client (WARP) is a competing ZTNA/SASE agent that intercepts and tunnels network traffic at the same WFP layers as GSA, causing direct conflicts with traffic steering and tunnel establishment." }
 )
 
 # ─── Collect system data ──────────────────────────────────────────────────────

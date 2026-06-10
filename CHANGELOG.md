@@ -34,11 +34,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **OpenVPN** conflict signature (Risk: Medium) — detects `ovpn-dco`, `tap_ovpnconnect`, `tapwindows`, `ovpnco` kernel drivers and `OpenVPNService` / `OpenVPN Connect` services. OpenVPN's TAP/DCO tunnel driver uses WFP and can conflict with GSA traffic steering at the redirect layer.
 - **WireGuard** conflict signature (Risk: Medium) — detects `wintun`, `WireGuard` kernel drivers and `WireGuardTunnel` / `WireGuardManager` services. The Wintun kernel driver registers WFP callouts for tunnel traffic that can conflict with GSA network interception.
-- Both new signatures confirmed detected on a test machine running OpenVPN Connect and WireGuard.
+- **Cloudflare One** conflict signature (Risk: High) — detects `CloudflareWARP` / `WARP` / `warp-svc` services and `cfwfpco` / `cfwfp` kernel drivers. Cloudflare One Client is a competing ZTNA/SASE agent that intercepts and tunnels network traffic at the same WFP layers as GSA. Note: the client runs as a user-mode service; detection is via `Get-Service` rather than `Win32_SystemDriver`.
+- All three new signatures confirmed detected on a test machine.
 
 ### Changed
 
-- Vendor count updated from 12 to **14** in README and detection pipeline description.
+- Vendor count updated from 12 to **15** in README and detection pipeline description.
 
 ---
 
