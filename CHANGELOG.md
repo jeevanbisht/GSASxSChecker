@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Vendor count updated from 12 to **15** in README and detection pipeline description.
+- Vendor count updated from 12 to **17** in README and detection pipeline description.
 
 ---
 
