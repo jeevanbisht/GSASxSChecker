@@ -49,13 +49,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+_(New entries go here during development)_
+
+---
+
+## [1.2.0] — 2026-06-09
+
 ### Added
 
-- **Citrix Secure Access / NetScaler Gateway** conflict signature (Risk: High) — detects `nsgwfp`, `nswfp`, `nsload`, `dne`, `deterministicnetworkenhancer`, `citrixvpn`, `ctxvpn` drivers and `Citrix Secure Access` / `Citrix Gateway Plugin` / `nsgateway` / `ctxvpn` services. Citrix VPN/SSE client uses WFP or legacy DNE drivers for split-tunnel and traffic interception, overlapping with GSA traffic steering and private access classification.
-- Vendor count bumped to **23**. conflict signature (Risk: High) — replaces former "Cisco AnyConnect" entry; expands drivers to include `vpnva64`, `acnamfd`, `acwfp` and services to include `acvpnagent` / `Cisco Secure Client`. Elevated to High risk.
+- **Cisco Secure Client / AnyConnect VPN** conflict signature (Risk: High) — replaces former "Cisco AnyConnect" entry; expands drivers to include `vpnva64`, `acnamfd`, `acwfp` and services to include `acvpnagent` / `Cisco Secure Client`. Elevated to High risk.
 - **Cisco Secure Client – Umbrella Module** conflict signature (Risk: High) — detects `acumbrella`, `acwfp`, `csc_umbrella`, `umbrella` drivers and `csc_umbrellaagent` / `Umbrella_RC` services. DNS-layer interception conflicts with GSA private access resolution.
 - **Cisco Umbrella Roaming Client** conflict signature (Risk: High) — detects `umbrella`, `opendns`, `acumbrella` drivers and `Umbrella_RC` / `OpenDNS_Connector` services. Loopback DNS redirect conflicts with GSA DNS steering and private app discovery.
 - **Cisco Secure Endpoint** conflict signature (Risk: Medium) — detects `ciscoamp`, `amp`, `sfc`, `immunetprotect`, `orbital` drivers and `CiscoAMP` / `Cisco Secure Endpoint` services. Network inspection or isolation policy may affect GSA tunnel traffic.
 - **Cisco Secure Access** conflict signature (Risk: High) — detects `ciscosecureaccess`, `ciscoztna`, `acwfp`, `acvpnwfp` drivers and `Cisco Secure Access` / `CiscoSecureAccess` / `csc_svr` services. Cisco's SSE/ZTNA client directly overlaps with GSA for traffic steering and private access.
 - **Cisco AnyConnect NVM** conflict signature (Risk: Low) — detects `acnvm`, `acnamfd`, `acsock` drivers and `acnvmagent` / `Cisco AnyConnect NVM` / `Cisco Secure Client NVM` services. Primarily telemetry; low conflict risk but surfaced for coexistence visibility.
-- Vendor count bumped from 17 to **22** (net +5: replaced 1 Cisco entry with 6 Cisco ecosystem entries).
+- **Citrix Secure Access / NetScaler Gateway** conflict signature (Risk: High) — detects `nsgwfp`, `nswfp`, `nsload`, `dne`, `deterministicnetworkenhancer`, `citrixvpn`, `ctxvpn` drivers and `Citrix Secure Access` / `Citrix Gateway Plugin` / `nsgateway` / `ctxvpn` services. WFP/DNE drivers used for split-tunnel and traffic interception overlap with GSA traffic steering and private access classification.
+- Added `AGENTS.md` single-source maintenance guide for AI agents and contributors.
+- `CONTRIBUTING.md`: corrected vendor schema, added `vendorRemediation` step, linked `docs/add-vendor.md`.
+- `Get-GSAConflictReport.ps1`: added `$script:Version` constant, startup console banner, `toolVersion` in report META, version shown in HTML report header.
+- `docs/user-guide.html`: corrected vendor list to match script; bumped badge to v1.2.
+- Vendor count bumped from 17 to **23**.

@@ -68,7 +68,7 @@
     Path to the generated HTML file is written to the host.
 
 .NOTES
-    Version      : 1.1.0
+    Version      : 1.2.0
     Author       : Jeevan Bisht
     Project      : https://github.com/jeevanbisht/GSASxSChecker
     License      : MIT
@@ -106,7 +106,7 @@ param(
     [switch]$NoBrowser
 )
 
-$script:Version = '1.1.0'
+$script:Version = '1.2.0'
 
 # ─── Known conflicting vendors ───────────────────────────────────────────────
 $KnownVendors = @(

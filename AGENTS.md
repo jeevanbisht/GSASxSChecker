@@ -61,7 +61,19 @@ All 6 items below **must** be done together. Never commit a vendor addition that
 
 ## Releasing a New Version
 
-When bumping the version (e.g. 1.1 → 1.2):
+### Semantic versioning rules
+
+Bump the version on **every commit that changes the script**:
+
+| Change type | Version bump | Examples |
+|---|---|---|
+| New vendor signature | **Minor** (1.X.0) | Adding any `$KnownVendors` entry |
+| New detection capability / new report tab or section | **Minor** (1.X.0) | New data source, new HTML tab |
+| Bug fix / false-positive fix / driver list correction | **Patch** (1.1.X) | Fixing a wrong driver name, remediation text fix |
+| Documentation-only (no `.ps1` change) | **No bump** | README, AGENTS.md, CHANGELOG edits only |
+| Breaking change (parameter removed/renamed, report schema change) | **Major** (X.0.0) | Removing a parameter, changing placeholder tokens |
+
+### Files to update when bumping version
 
 | File | Change |
 |---|---|
