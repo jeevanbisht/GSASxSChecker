@@ -28,6 +28,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] — 2026-06-09
+
+### Added
+
+- **OpenVPN** conflict signature (Risk: Medium) — detects `ovpn-dco`, `tap_ovpnconnect`, `tapwindows`, `ovpnco` kernel drivers and `OpenVPNService` / `OpenVPN Connect` services. OpenVPN's TAP/DCO tunnel driver uses WFP and can conflict with GSA traffic steering at the redirect layer.
+- **WireGuard** conflict signature (Risk: Medium) — detects `wintun`, `WireGuard` kernel drivers and `WireGuardTunnel` / `WireGuardManager` services. The Wintun kernel driver registers WFP callouts for tunnel traffic that can conflict with GSA network interception.
+- Both new signatures confirmed detected on a test machine running OpenVPN Connect and WireGuard.
+
+### Changed
+
+- Vendor count updated from 12 to **14** in README and detection pipeline description.
+
+---
+
 ## [Unreleased]
 
 _(New entries go here during development)_
