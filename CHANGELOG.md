@@ -53,6 +53,14 @@ _(New entries go here during development)_
 
 ---
 
+## [1.3.3] — 2026-06-09
+
+### Changed
+
+- All 7 vendor remediation entries that have an official Microsoft Learn coexistence guide now use a concise one-liner + clickable `<a href>` link to the doc, replacing the verbose inline step-by-step text: Palo Alto Prisma/GlobalProtect, Zscaler, Netskope, Cisco Secure Client/AnyConnect VPN, Cisco Secure Client – Umbrella Module, Cisco Umbrella Roaming Client, Cisco Secure Access.
+
+---
+
 ## [1.3.2] — 2026-06-09
 
 ### Fixed
