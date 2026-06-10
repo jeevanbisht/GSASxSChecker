@@ -6,7 +6,8 @@
 .DESCRIPTION
     Get-GSAConflictReport scans the local machine for kernel-mode WFP callout
     drivers and services from known security vendors (Forcepoint, Check Point,
-    Skyhigh, Zscaler, Netskope, Palo Alto, CrowdStrike, SentinelOne, and more)
+    Skyhigh, Zscaler, Netskope, Palo Alto, CrowdStrike, SentinelOne, Symantec,
+    Cisco AnyConnect, iboss, Trellix, OpenVPN, WireGuard, Cloudflare One, and more)
     that are known to conflict with the Microsoft Global Secure Access (GSA) client.
 
     The GSA client uses a WFP callout driver (GlobalSecureAccessDriver) to intercept
@@ -66,7 +67,7 @@
     Path to the generated HTML file is written to the host.
 
 .NOTES
-    Version      : 1.0.0
+    Version      : 1.1.0
     Author       : Jeevan Bisht
     Project      : https://github.com/jeevanbisht/GSASxSChecker
     License      : MIT
@@ -752,12 +753,25 @@ details[open] summary { color: var(--cp-accent); }
 
   <!-- TAB: WFP Details -->
   <div class="tab-panel" id="tab-wfp">
+    <div id="wfpAdminNote" style="display:none;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:0.625rem;padding:12px 16px;margin-bottom:16px;font-size:13px">
+      ⚠️ <strong>Administrator elevation required</strong> — WFP callout and provider data is only available when the script
+      is run as Administrator (<code>netsh wfp show state</code>). Re-run with elevated privileges to see all registered
+      WFP callout drivers and providers, including those from detected conflicting products.
+    </div>
     <div class="card">
       <div class="card-title">WFP Callout Drivers <span class="count-badge" id="calloutBadge">0</span></div>
+      <p style="font-size:12px;color:var(--cp-text-muted);margin-bottom:12px">
+        Kernel-mode callout drivers registered with the Windows Filtering Platform engine. Competing callouts at
+        <code>ALE_CONNECT_REDIRECT</code> / <code>ALE_AUTH_CONNECT</code> layers directly interfere with GSA traffic steering.
+      </p>
       <div id="calloutTable"></div>
     </div>
     <div class="card">
       <div class="card-title">WFP Providers <span class="count-badge" id="providerBadge">0</span></div>
+      <p style="font-size:12px;color:var(--cp-text-muted);margin-bottom:12px">
+        WFP providers group callouts and filters by vendor. Multiple providers competing at the same layers can cause
+        filter weight conflicts that silently drop or misroute traffic.
+      </p>
       <div id="providerTable"></div>
     </div>
   </div>
@@ -941,6 +955,7 @@ document.getElementById("metaBlock").innerHTML =
   `<div>${esc(META.reportTime)}</div>`;
 
 if (!META.isAdmin) document.getElementById("adminWarn").style.display = "flex";
+if (!META.isAdmin) document.getElementById("wfpAdminNote").style.display = "block";
 if (META.ilowfpDetected) document.getElementById("ilowfpAlert").style.display = "block";
 
 // ─── Summary tab ──────────────────────────────────────────────────────────────
@@ -1118,6 +1133,23 @@ document.getElementById("netTable").innerHTML = makeTable(
 );
 
 // ─── Remediation tab ──────────────────────────────────────────────────────────
+const vendorRemediation = {
+  "Forcepoint":       "Disable Forcepoint Web Security network proxy / SSL inspection on devices running GSA, or configure Forcepoint to exclude Microsoft Entra and M365 traffic from its WFP redirect callout.",
+  "Check Point":      "In Check Point Endpoint Security, disable the 'Full Disk Encryption' network component or configure a firewall exclusion rule to allow GSA tunnel traffic without interception.",
+  "Skyhigh/McAfee":   "In McAfee/Trellix/Skyhigh console, disable the 'Web Gateway' or 'Client Proxy' component, or add the GSA service account and driver to the exclusion list.",
+  "Zscaler":          "Zscaler Client Connector and GSA cannot run simultaneously on the same device. Disable Zscaler ZIA/ZPA on devices deployed with GSA, or coordinate with Zscaler for a coexistence policy.",
+  "Netskope":         "Configure Netskope steering exceptions to bypass Microsoft Entra ID, M365, and Private Access traffic. Contact Netskope support for a GSA coexistence configuration guide.",
+  "Symantec/Broadcom":"Disable Symantec Endpoint Protection's 'Network Threat Protection' module or add the GlobalSecureAccessDriver to the excluded drivers list in SEP policy.",
+  "CrowdStrike":      "CrowdStrike Falcon generally coexists with GSA. If issues arise, verify that Falcon sensor network telemetry is not set to block/redirect mode. Contact CrowdStrike for a GSA exclusion policy.",
+  "SentinelOne":      "In SentinelOne console, add GlobalSecureAccessDriver and its associated binaries to the exclusion list. Enable 'Interoperability mode' if available for your agent version.",
+  "Palo Alto Prisma":  "GlobalProtect VPN and GSA Client cannot run on the same device simultaneously. Disable GlobalProtect or Prisma Access on GSA-managed devices, or use split-tunneling in GlobalProtect to exclude Entra/M365 destinations.",
+  "Cisco AnyConnect": "Configure Cisco AnyConnect split-tunneling to exclude Microsoft 365, Entra ID, and GSA tunnel endpoints. Alternatively, disable AnyConnect on devices using GSA for private access.",
+  "iboss":            "Configure iboss cloud connector to exclude GSA-tunneled traffic from its WFP redirect policy, or disable iboss on devices where GSA handles secure web gateway functionality.",
+  "Trellix":          "Disable the Trellix (McAfee Enterprise) 'Endpoint Security - Threat Prevention' network component or configure the DLP policy to exclude GlobalSecureAccessDriver from interception.",
+  "OpenVPN":          "OpenVPN tunnel driver (TAP/DCO) and GSA can coexist in many scenarios, but may conflict if OpenVPN routes overlap with GSA-tunneled traffic. Configure OpenVPN split-tunneling to exclude Entra ID and M365 prefixes, or disconnect OpenVPN before establishing GSA tunnels.",
+  "WireGuard":        "WireGuard's Wintun driver may conflict with GSA on machines where both tunnel traffic simultaneously. Configure WireGuard to use split-tunneling, excluding Microsoft Entra ID and M365 IP ranges from the WireGuard tunnel.",
+  "Cloudflare One":   "Cloudflare One Client (WARP) and GSA Client are both Zero Trust Network Access agents — they cannot safely run simultaneously. Disable Cloudflare WARP on devices enrolled in GSA, or configure WARP split-tunneling to exclude all Microsoft 365, Entra ID, and Private Access traffic. Do NOT run two ZTNA agents concurrently.",
+};
 const recoList = document.getElementById("recoList");
 const recos = [];
 if (FINDINGS.length === 0) {
@@ -1126,11 +1158,14 @@ if (FINDINGS.length === 0) {
 } else {
   FINDINGS.forEach(f => {
     const severity = f.Risk.toLowerCase();
-    recos.push({ icon: severity === "high" ? "action" : "info",
-      text: `<strong>${esc(f.Vendor)}</strong> (${esc(f.Risk)} Risk): Coordinate with your ${esc(f.Vendor)} admin to configure exclusions or disable overlapping WFP modules. Affected: <code>${esc(f.MatchedDrivers||f.MatchedServices||"n/a")}</code>` });
+    const specific = vendorRemediation[f.Vendor];
+    const affectedStr = esc(f.MatchedDrivers || f.MatchedServices || "n/a");
+    const text = `<strong>${esc(f.Vendor)}</strong> (${esc(f.Risk)} Risk) — Affected: <code>${affectedStr}</code><br>` +
+      `<span style="color:var(--cp-text-soft)">${specific ? specific : "Coordinate with your " + esc(f.Vendor) + " admin to configure exclusions or disable overlapping WFP modules."}</span>`;
+    recos.push({ icon: severity === "high" ? "action" : "info", text });
   });
   if (!META.isAdmin) {
-    recos.push({ icon:"action", text:"Re-run this script as <strong>Administrator</strong> for a complete WFP callout scan - current results may be incomplete." });
+    recos.push({ icon:"action", text:"Re-run this script as <strong>Administrator</strong> for a complete WFP callout scan — current results may be incomplete." });
   }
 }
 recoList.innerHTML = recos.map(r =>
