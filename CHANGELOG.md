@@ -49,6 +49,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+_(New entries go here during development)_
+
+---
+
+## [1.3.1] — 2026-06-09
+
+### Fixed
+
+- **Cisco Secure Client / AnyConnect VPN** remediation updated to official Microsoft coexistence guidance: Split-Include mode only; add GSA bypass rule for `*.vpn.sse.cisco.com` (VPNaaS) or ASA endpoint FQDN/IP; run `acsocktool.exe -slwm 10` after installing CSC v5.1.10.x+. Ref: https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-vpn-coexistence
+- **Cisco Secure Client – Umbrella Module** remediation updated to official Microsoft coexistence guidance: SWG must be disabled; add Umbrella IPs as GSA Internet Access bypass (`208.67.222.222`, `208.67.220.220`, `67.215.64.0/19`, `146.112.0.0/16`, etc.); add `*.globalsecureaccess.microsoft.com` and M365 FQDNs to Umbrella internal domains; run `acsocktool.exe -slwm 10` for CSC v5.1.10.x+. Ref: https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-coexistence
+- **Cisco Umbrella Roaming Client** remediation updated with same Umbrella coexistence guide steps: SWG disabled, Umbrella IP bypass in GSA, GSA FQDNs in Umbrella internal domains, restart Umbrella services.
+- **Cisco Secure Access** remediation updated to official Microsoft coexistence guidance: add Cisco IPs and `*.zpc.sse.cisco.com` as GSA bypass; bypass `*.globalsecureaccess.microsoft.com` and GSA IP ranges in Cisco Secure Access Traffic Steering; run `acsocktool.exe -slwm 10` for CSC v5.1.10.x+. Ref: https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-cisco-secure-access-coexistence
+
+---
+
+## [1.3.0] — 2026-06-09
+
 ### Added
 
 - **Fortinet FortiClient** conflict signature (Risk: High) — detects `fortifilter`, `fortiwf`, `fortissl`, `fortivpn`, `fortidrv` drivers and `FortiClient` / `FortiWF` services.
