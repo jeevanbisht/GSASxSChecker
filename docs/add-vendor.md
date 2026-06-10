@@ -42,7 +42,54 @@ Add a new hashtable entry **before the closing `)`**:
 - If the product is **user-mode only** (registry `Type=16/32`), it will not appear in `Win32_SystemDriver`. Put it in `Services` only.
 - Products that use a **shared driver** (e.g. `wintun` used by both WireGuard and Tailscale) should still include their own service names for disambiguation.
 
-**How to discover driver/service names on a live machine:**
+---
+
+### ⚠️ Pattern Safety Rules — mandatory before committing
+
+Every driver and service string is matched as a **case-insensitive substring**: `$_.Name -like "*yourpattern*"`. A short or generic pattern silently matches unrelated Windows components and produces false positives.
+
+**Hard rules:**
+
+| Rule | Bad example | Good example |
+|---|---|---|
+| **Minimum 5 characters** | `"eaa"`, `"amp"`, `"via"`, `"epp"`, `"dsp"`, `"ose"` | `"akamaiaccess"`, `"ciscoamp"`, `"arubavia"` |
+| **No generic English words alone** | `"shield"`, `"orbital"`, `"mobility"` | `"EricomShield"`, `"CiscoOrbital"` |
+| **No Windows built-in abbreviations** | `"sfc"`, `"cpd"`, `"warp"` | Remove; use the full product-specific service name |
+| **Shared drivers need companion service** | `"wintun"` alone | Always pair with a unique service: `"NordLayer"`, `"NetBird"` |
+| **Prefer vendor brand names** | `"amon"`, `"masvc"` | `"CheckPoint"`, `"McAfee"` or the full display name |
+
+**Known false positives — never re-add these patterns:**
+
+| Pattern | Was in | Matched incorrectly |
+|---|---|---|
+| `"WARP"` | Cloudflare One | Windows Warp JIT Service (WinAppSDK) |
+| `"ose"` | Open Systems SASE | AMD audio kernel drivers |
+| `"cpd"` | Check Point | `AMDCPDService` (AMD Crash Prevention Device) |
+| `"amon"` | Check Point | Generic monitoring agent names |
+| `"amp"` | Cisco Secure Endpoint | AMD audio/amplifier components |
+| `"via"` | Aruba VIA | VIA Technologies chipset drivers |
+| `"epp"` | CoSoSys Endpoint Protector | Other EPP/EDR security products |
+| `"dsp"` | ManageEngine DataSecurity Plus | Generic DSP/audio components |
+| `"shield"` | Ericom Shield | Other "Shield"-branded security products |
+| `"eaa"` | Akamai EAA | Generic EAA acronym collisions |
+| `"sfc"` | Cisco Secure Endpoint | Windows System File Checker |
+
+**Mandatory validation step — run on a clean Windows machine before committing:**
+
+```powershell
+# If ANY result is not the target vendor, the pattern is too broad. Do not commit it.
+$pattern = "yourpattern"
+
+Get-Service | Where-Object {
+    $_.Name -like "*$pattern*" -or $_.DisplayName -like "*$pattern*"
+} | Format-Table Name, DisplayName, Status
+
+Get-WmiObject Win32_SystemDriver | Where-Object {
+    $_.Name -like "*$pattern*" -or $_.DisplayName -like "*$pattern*"
+} | Format-Table Name, DisplayName, State
+```
+
+---
 ```powershell
 # Find running kernel drivers matching a product name
 Get-WmiObject Win32_SystemDriver | Where-Object { $_.Name -match 'keyword' -or $_.PathName -match 'keyword' } | Format-Table Name, DisplayName, State, PathName

@@ -51,6 +51,44 @@ All 6 items below **must** be done together. Never commit a vendor addition that
 | `Services` | Matched via `Get-Service` `Name`/`DisplayName`. Required when product has no kernel driver. |
 | `Desc` | Shown in Findings tab. Describe WFP layer impact. Avoid competitive framing. |
 
+### ⚠️ Pattern Safety Rules — read before adding any driver or service name
+
+All driver and service patterns are matched as **case-insensitive substrings** (`*pattern*`). A 3-character pattern like `"ose"` will match **any** driver/service whose name contains those letters — including unrelated Windows components.
+
+**Hard rules:**
+
+| Rule | Example violation | Correct fix |
+|---|---|---|
+| **Minimum 5 characters** for any pattern | `"ose"`, `"eaa"`, `"amp"`, `"via"`, `"epp"`, `"dsp"` | Use the full service name: `"osevpn"`, `"akamaiaccess"` |
+| **No generic English words** | `"shield"`, `"orbital"`, `"mobility"`, `"keeper"` alone | Prefix with vendor brand: `"EricomShield"`, `"CiscoOrbital"` |
+| **No Windows built-in abbreviations** | `"sfc"` (Windows SFC), `"cpd"` (AMD CPD service), `"warp"` (Windows Warp JIT Service) | Remove entirely; use longer product-specific strings |
+| **No shared infrastructure names alone** | `"wintun"` alone (used by WireGuard, Tailscale, NetBird, Headscale, Perimeter 81…) | Always pair with a product-specific service name |
+| **Prefer exact brand names** | `"amon"`, `"masvc"` | Use `"CheckPoint"`, `"McAfee"` or the full service display name |
+
+**Known false positives caught and fixed (do not re-add these patterns):**
+
+| Pattern | Vendor it was in | Matched incorrectly |
+|---|---|---|
+| `"WARP"` | Cloudflare One | Windows Warp JIT Service (WinAppSDK MSIX JIT) |
+| `"ose"` | Open Systems SASE | AMD audio kernel drivers |
+| `"cpd"` | Check Point | AMD Crash Prevention Device service (`AMDCPDService`) |
+| `"amon"` | Check Point | Generic monitoring agent names |
+| `"amp"` | Cisco Secure Endpoint | AMD amplifier/audio components |
+| `"via"` | Aruba VIA | VIA Technologies chipset drivers (`viaXxx.sys`) |
+| `"epp"` | CoSoSys Endpoint Protector | Other EPP/EDR products |
+| `"dsp"` | ManageEngine DataSecurity Plus | Generic DSP/audio components |
+| `"shield"` | Ericom Shield | Other security products using "Shield" branding |
+| `"eaa"` | Akamai EAA | Generic EAA acronym collisions |
+| `"sfc"` | Cisco Secure Endpoint | Windows System File Checker components |
+
+**Quick self-check before committing:**
+```powershell
+# Run this on a clean Windows machine before finalising any pattern.
+# If results include non-vendor services, the pattern is too broad.
+Get-Service | Where-Object { $_.Name -like "*yourpattern*" -or $_.DisplayName -like "*yourpattern*" } | Format-Table Name, DisplayName, Status
+Get-WmiObject Win32_SystemDriver | Where-Object { $_.Name -like "*yourpattern*" -or $_.DisplayName -like "*yourpattern*" } | Format-Table Name, DisplayName, State
+```
+
 ### `vendorRemediation` schema (inside HTML template in same file)
 
 ```javascript
