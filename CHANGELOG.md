@@ -49,7 +49,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-_(New entries go here during development)_
+### Added
+
+- **Fortinet FortiClient** conflict signature (Risk: High) — detects `fortifilter`, `fortiwf`, `fortissl`, `fortivpn`, `fortidrv` drivers and `FortiClient` / `FortiWF` services.
+- **Ivanti Secure Access / Pulse Secure** conflict signature (Risk: High) — detects `jnprns`, `dsNcAdpt`, `pulse`, `pulsesecure`, `ivanti` drivers and `PulseSecureService` / `Ivanti Secure Access` / `dsNcService` services.
+- **F5 BIG-IP Edge Client** conflict signature (Risk: High) — detects `f5vpn`, `f5ndis`, `f5fpclient` drivers and `BIG-IP Edge Client` / `F5 Networks VPN Service` services.
+- **SonicWall NetExtender** conflict signature (Risk: High) — detects `sonicwall`, `netextender`, `nxdrv`, `swvnic` drivers and `NetExtender` / `SONICWALL_NetExtender` services.
+- **Sophos Connect / Sophos ZTNA** conflict signature (Risk: High) — detects `sophos`, `sophosnetfilter`, `sophosztna` drivers and `Sophos Connect Service` / `Sophos ZTNA` / `Sophos Network Threat Protection` services.
+- **Absolute Secure Access / NetMotion** conflict signature (Risk: High) — detects `netmotion`, `nmfilter`, `nmdrv`, `mobility` drivers and `NetMotion Mobility Client` / `Absolute Secure Access` services.
+- **Appgate SDP** conflict signature (Risk: High) — detects `appgate`, `appgatesdp`, `agtun` drivers and `Appgate SDP Client` / `Appgate SDP Service` services.
+- **Akamai Enterprise Application Access** conflict signature (Risk: Medium) — detects `akamai`, `eaa`, `akamaiaccess` drivers and `Akamai EAA Client` / `EAAClient` services.
+- **Twingate** conflict signature (Risk: Medium) — detects `twingate`, `wintun` drivers and `Twingate` / `Twingate Service` services.
+- Renamed `Palo Alto Prisma` → `Palo Alto Prisma / GlobalProtect` for clarity.
+- Reorganized `$KnownVendors` with category comments (CASB/SWG/SSE, Palo Alto, Cisco, Citrix, Fortinet, Ivanti, F5, SonicWall, Sophos, Absolute/NetMotion, Appgate, Akamai, ZTNA, Endpoint Security, VPN, Traffic Shaping).
+- Vendor count bumped from 23 to **32**.
 
 ---
 

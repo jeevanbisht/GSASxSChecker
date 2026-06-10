@@ -17,7 +17,7 @@ The **Global Secure Access (GSA)** client uses a kernel-mode WFP callout driver 
 
 | Capability | Details |
 |---|---|
-| **23 vendor signatures** | Forcepoint, Check Point, Skyhigh, Zscaler, Netskope, Palo Alto, CrowdStrike, SentinelOne, Symantec, Cisco Secure Client/AnyConnect, Cisco Umbrella Module, Cisco Umbrella RC, Cisco Secure Endpoint, Cisco Secure Access, Cisco AnyConnect NVM, Citrix Secure Access, iboss, Trellix, OpenVPN, WireGuard, Tailscale, NetLimiter, Cloudflare One |
+| **32 vendor signatures** | Forcepoint, Check Point, Skyhigh, Zscaler, Netskope, Cloudflare One, iboss, Palo Alto Prisma/GlobalProtect, Cisco (6 products), Citrix Secure Access, Fortinet FortiClient, Ivanti/Pulse Secure, F5 BIG-IP Edge, SonicWall, Sophos, Absolute/NetMotion, Appgate SDP, Akamai EAA, Twingate, Trellix, Symantec, CrowdStrike, SentinelOne, OpenVPN, WireGuard, Tailscale, NetLimiter |
 | **WFP callout enumeration** | Live WFP engine dump via `netsh wfp show state` (requires Administrator) |
 | **Kernel driver signer detection** | All running non-Microsoft kernel drivers with publisher and signer info |
 | **GSA client status** | Version, services, tunnel channel health (M365 / Internet / Private / Entra) |
@@ -115,7 +115,7 @@ The GSA client registers a **kernel-mode WFP callout driver** that operates at W
 ```
 1. Win32_SystemDriver (WMI)   →  all SCM-registered kernel-mode drivers
 2. netsh wfp show state        →  live WFP callout + provider enumeration (admin)
-3. Vendor signature matching   →  23 curated vendor patterns
+3. Vendor signature matching   →  32 curated vendor patterns
 4. GSA registry / services     →  version, channel status, service health
 5. dsregcmd /status            →  Entra ID / Hybrid / On-prem join detection
 ```

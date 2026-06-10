@@ -7,8 +7,10 @@
     Get-GSAConflictReport scans the local machine for kernel-mode WFP callout
     drivers and services from known security vendors (Forcepoint, Check Point,
     Skyhigh, Zscaler, Netskope, Palo Alto, CrowdStrike, SentinelOne, Symantec,
-    Cisco Secure Client/AnyConnect, Cisco Umbrella, Cisco Secure Endpoint,
-    Cisco Secure Access, Citrix Secure Access, iboss, Trellix, OpenVPN, WireGuard, Cloudflare One, and more)
+    Cisco Secure Client/AnyConnect, Cisco Umbrella, Cisco Secure Endpoint, Cisco Secure Access,
+    Citrix Secure Access, Fortinet FortiClient, Ivanti/Pulse Secure, F5 BIG-IP Edge,
+    SonicWall, Sophos, Absolute/NetMotion, Appgate, Akamai EAA, Twingate, iboss,
+    Trellix, OpenVPN, WireGuard, Cloudflare One, and more)
     that are known to conflict with the Microsoft Global Secure Access (GSA) client.
 
     The GSA client uses a WFP callout driver (GlobalSecureAccessDriver) to intercept
@@ -68,7 +70,7 @@
     Path to the generated HTML file is written to the host.
 
 .NOTES
-    Version      : 1.2.0
+    Version      : 1.3.0
     Author       : Jeevan Bisht
     Project      : https://github.com/jeevanbisht/GSASxSChecker
     License      : MIT
@@ -106,34 +108,75 @@ param(
     [switch]$NoBrowser
 )
 
-$script:Version = '1.2.0'
+$script:Version = '1.3.0'
 
 # ─── Known conflicting vendors ───────────────────────────────────────────────
 $KnownVendors = @(
-    @{ Name="Forcepoint";      Risk="High";   Drivers=@("fpwfp","fpdodriver","fpepflt","fp_wfp");           Services=@("fpcsvc","FPWFPDriver","ForcePoint");       Desc="Forcepoint Web Security / DLP uses WFP callouts at the same ALE layers as GSA, causing packet redirect conflicts." }
-    @{ Name="Check Point";     Risk="High";   Drivers=@("vsdatant","cpfw","cptlsp","cpepflt");              Services=@("CheckPoint","cpd","amon","CPDA");           Desc="Check Point Endpoint Security registers persistent WFP providers that conflict with GSA tunnel callouts." }
-    @{ Name="Skyhigh/McAfee";  Risk="High";   Drivers=@("mfewfpk","mfefirek","mfehidk","cfwids");          Services=@("McAfee","Skyhigh","mfevtp","masvc");        Desc="McAfee/Trellix/Skyhigh CASB & DLP hooks at ALE_CONNECT layer directly conflict with GSA traffic steering." }
-    @{ Name="Zscaler";         Risk="High";   Drivers=@("zscaler","zsa","ZSADriver");                       Services=@("ZSAService","ZscalerService","ZSTunnel");   Desc="Zscaler Client Connector and GSA Client both register WFP callouts at the network redirect layer. Running both simultaneously can cause traffic steering conflicts, dropped tunnels, or unreachable resources." }
-    @{ Name="Netskope";        Risk="High";   Drivers=@("nssdrv","NetskopeFilter","nswfp");                 Services=@("stAgentSvc","NetskopeService");             Desc="Netskope CASB client uses a WFP callout driver that intercepts the same traffic flows as GSA." }
-    @{ Name="Symantec/Broadcom";Risk="Medium";Drivers=@("symnets","srtspx","SymEvent");              Services=@("SepMasterService","SymNetDrv");             Desc="Symantec Endpoint Protection network driver may conflict depending on policy configuration." }
-    @{ Name="CrowdStrike";     Risk="Low";    Drivers=@("csagent","CrowdStrike");                          Services=@("CSFalconService","CrowdStrike");            Desc="CrowdStrike Falcon sensor uses WFP for network telemetry - generally coexists but monitor for issues." }
-    @{ Name="SentinelOne";     Risk="Low";    Drivers=@("sentinelmonitor","SentinelAgent","s1filter");     Services=@("SentinelAgent","SentinelOne");              Desc="SentinelOne agent uses WFP for detection - usually low risk but can cause intermittent drops." }
-    @{ Name="Palo Alto Prisma";Risk="High";   Drivers=@("pangpd","PanWFP","PanGPA");                       Services=@("PanGPS","PanGPA","PrismaAccess");           Desc="Palo Alto GlobalProtect VPN and Prisma Access register WFP callouts at the same network layers as GSA. Running both can cause tunnel failures, traffic drops, or connectivity issues to protected resources." }
-    # ─── Cisco ecosystem ────────────────────────────────────────────────────────
-    @{ Name="Cisco Secure Client / AnyConnect VPN"; Risk="High";   Drivers=@("acvpnwfp","acsock","vpnva","vpnva64","acnamfd","acwfp");        Services=@("vpnagent","acvpnagent","Cisco AnyConnect Secure Mobility Agent","Cisco Secure Client"); Desc="Cisco Secure Client / AnyConnect VPN installs tunnel and network filtering components. It can overlap with GSA traffic steering, route control, DNS handling, and tunnel establishment." }
-    @{ Name="Cisco Secure Client - Umbrella Module"; Risk="High";   Drivers=@("acumbrella","acwfp","csc_umbrella","umbrella");              Services=@("csc_umbrellaagent","Cisco Secure Client - Umbrella","Umbrella_RC","Umbrella Roaming Client"); Desc="Cisco Secure Client Umbrella module provides DNS-layer protection and roaming security. It may intercept DNS and enforce policy in ways that overlap with GSA DNS and private access steering." }
-    @{ Name="Cisco Umbrella Roaming Client";         Risk="High";   Drivers=@("umbrella","opendns","acumbrella");                            Services=@("Umbrella_RC","Umbrella Roaming Client","OpenDNS_Connector");  Desc="Cisco Umbrella Roaming Client redirects DNS locally, commonly using loopback DNS inspection. This can conflict with GSA DNS resolution, private app discovery, and traffic classification." }
-    @{ Name="Cisco Secure Endpoint";                 Risk="Medium"; Drivers=@("ciscoamp","amp","sfc","immunetprotect","orbital");            Services=@("CiscoAMP","Cisco Secure Endpoint","ImmunetProtect","Orbital"); Desc="Cisco Secure Endpoint focuses on endpoint protection and telemetry. Usually lower risk than VPN/Umbrella, but network inspection or isolation policy can still affect GSA traffic." }
-    @{ Name="Cisco Secure Access";                   Risk="High";   Drivers=@("ciscosecureaccess","ciscoztna","acwfp","acvpnwfp");          Services=@("Cisco Secure Access","CiscoSecureAccess","csc_svr","vpnagent"); Desc="Cisco Secure Access is Cisco's SSE/ZTNA client path. It can overlap directly with GSA for private access, web access, DNS security, tunnel routing, and traffic steering." }
-    @{ Name="Cisco AnyConnect NVM";                  Risk="Low";    Drivers=@("acnvm","acnamfd","acsock");                                 Services=@("acnvmagent","Cisco AnyConnect NVM","Cisco Secure Client NVM"); Desc="Cisco NVM is primarily telemetry and visibility oriented. Lower conflict risk, but still useful to detect because it may coexist with VPN and Umbrella modules." }
-    @{ Name="iboss";           Risk="Medium"; Drivers=@("iboss","ibossdrv");                               Services=@("ibossService","ibossAgent");                Desc="iboss cloud connector uses network filtering that may overlap with GSA traffic interception." }
-    @{ Name="Trellix";         Risk="High";   Drivers=@("mfewfpk","xagt","HipShieldK");                   Services=@("xagt","Trellix","McAfeeDLPAgentService");   Desc="Trellix (McAfee Enterprise) endpoint agent - same WFP conflict as McAfee consumer products." }
-    @{ Name="OpenVPN";         Risk="Medium"; Drivers=@("ovpn-dco","tap_ovpnconnect","tapwindows","ovpnco"); Services=@("OpenVPNService","OpenVPN Connect","ovpnhelper"); Desc="OpenVPN tunnel driver (TAP/DCO) uses WFP and may conflict with GSA traffic steering at the redirect layer." }
-    @{ Name="WireGuard";       Risk="Medium"; Drivers=@("wintun","WireGuard","wireguard"); Services=@("WireGuardTunnel","WireGuardManager"); Desc="WireGuard Wintun kernel driver registers WFP callouts for tunnel traffic that can conflict with GSA network interception." }
-    @{ Name="Tailscale";       Risk="Medium"; Drivers=@("wintun","tailscale"); Services=@("Tailscale","tailscaled"); Desc="Tailscale uses the Wintun kernel driver and registers WFP callouts for its mesh VPN tunnel. Running alongside GSA may cause traffic routing conflicts depending on which destinations each product is configured to handle." }
-    @{ Name="NetLimiter";      Risk="Medium"; Drivers=@("nldrv","netlimiter"); Services=@("nlsvc","NetLimiter","nlsvc"); Desc="NetLimiter installs a kernel-mode WFP driver (nldrv.sys) to shape and monitor network traffic per application. Its WFP callouts may interfere with GSA tunnel traffic classification and steering." }
-    @{ Name="Cloudflare One";  Risk="High";   Drivers=@("cfwfpco","cfwfp","cloudflare"); Services=@("CloudflareWARP","WARP","warp-svc"); Desc="Cloudflare One Client (WARP) intercepts and tunnels network traffic at the same WFP layers as GSA. Running both agents simultaneously can cause traffic steering conflicts, tunnel failures, and degraded user experience." }
-    @{ Name="Citrix Secure Access / NetScaler Gateway"; Risk="High"; Drivers=@("nsgwfp","nswfp","nsload","dne","deterministicnetworkenhancer","citrixvpn","ctxvpn"); Services=@("Citrix Secure Access","Citrix Gateway Plugin","NetScaler Gateway Plugin","nsgateway","ctxvpn"); Desc="Citrix Secure Access client / NetScaler Gateway VPN can use WFP or legacy DNE drivers for split tunneling, reverse split tunneling, DNS handling, and VPN traffic interception. This can overlap with GSA traffic steering and private access classification." }
+
+    # ─── CASB / SWG / SSE ─────────────────────────────────────────────────────
+    @{ Name="Forcepoint";     Risk="High";   Drivers=@("fpwfp","fpdodriver","fpepflt","fp_wfp");           Services=@("fpcsvc","FPWFPDriver","ForcePoint");       Desc="Forcepoint Web Security / DLP uses WFP callouts and network interception that may overlap with GSA traffic steering." }
+    @{ Name="Check Point";    Risk="High";   Drivers=@("vsdatant","cpfw","cptlsp","cpepflt");              Services=@("CheckPoint","cpd","amon","CPDA");           Desc="Check Point Endpoint Security registers network filtering components that may interfere with GSA tunnel processing." }
+    @{ Name="Skyhigh/McAfee"; Risk="High";   Drivers=@("mfewfpk","mfefirek","mfehidk","cfwids");          Services=@("McAfee","Skyhigh","mfevtp","masvc");        Desc="Skyhigh and McAfee network security components may overlap with GSA traffic interception and policy enforcement." }
+    @{ Name="Zscaler";        Risk="High";   Drivers=@("zscaler","zsa","ZSADriver");                       Services=@("ZSAService","ZscalerService","ZSTunnel");   Desc="Zscaler Client Connector performs traffic steering, DNS control, and tunnel ownership that may conflict with GSA." }
+    @{ Name="Netskope";       Risk="High";   Drivers=@("nssdrv","NetskopeFilter","nswfp");                 Services=@("stAgentSvc","NetskopeService");             Desc="Netskope client intercepts network traffic for CASB and SSE functions and may overlap with GSA." }
+    @{ Name="Cloudflare One"; Risk="High";   Drivers=@("cfwfpco","cfwfp","cloudflare");                   Services=@("CloudflareWARP","WARP","warp-svc");         Desc="Cloudflare One Client (WARP) performs DNS, routing, and traffic steering similar to GSA." }
+    @{ Name="iboss";          Risk="Medium"; Drivers=@("iboss","ibossdrv");                               Services=@("ibossService","ibossAgent");                Desc="iboss cloud connector uses network filtering and traffic interception that may overlap with GSA." }
+
+    # ─── Palo Alto ─────────────────────────────────────────────────────
+    @{ Name="Palo Alto Prisma / GlobalProtect"; Risk="High"; Drivers=@("pangpd","PanWFP","PanGPA"); Services=@("PanGPS","PanGPA","PrismaAccess"); Desc="GlobalProtect and Prisma Access provide VPN and SSE functions that may conflict with GSA routing and tunnel ownership." }
+
+    # ─── Cisco ─────────────────────────────────────────────────────
+    @{ Name="Cisco Secure Client / AnyConnect VPN";    Risk="High";   Drivers=@("acvpnwfp","acsock","vpnva","vpnva64","acnamfd","acwfp"); Services=@("vpnagent","acvpnagent","Cisco AnyConnect Secure Mobility Agent","Cisco Secure Client"); Desc="Cisco VPN client may overlap with GSA routing, DNS, and tunnel establishment." }
+    @{ Name="Cisco Secure Client - Umbrella Module";   Risk="High";   Drivers=@("acumbrella","acwfp","csc_umbrella","umbrella");          Services=@("csc_umbrellaagent","Cisco Secure Client - Umbrella","Umbrella_RC","Umbrella Roaming Client"); Desc="Umbrella module provides DNS protection and policy enforcement that may overlap with GSA." }
+    @{ Name="Cisco Umbrella Roaming Client";           Risk="High";   Drivers=@("umbrella","opendns","acumbrella");                      Services=@("Umbrella_RC","Umbrella Roaming Client","OpenDNS_Connector"); Desc="Umbrella redirects and protects DNS traffic which may interfere with GSA DNS processing." }
+    @{ Name="Cisco Secure Endpoint";                   Risk="Medium"; Drivers=@("ciscoamp","amp","sfc","immunetprotect","orbital");      Services=@("CiscoAMP","Cisco Secure Endpoint","ImmunetProtect","Orbital"); Desc="Cisco endpoint security components may affect network processing depending on policy." }
+    @{ Name="Cisco Secure Access";                     Risk="High";   Drivers=@("ciscosecureaccess","ciscoztna","acwfp","acvpnwfp");    Services=@("Cisco Secure Access","CiscoSecureAccess","csc_svr","vpnagent"); Desc="Cisco Secure Access directly overlaps with GSA private access and SSE capabilities." }
+    @{ Name="Cisco AnyConnect NVM";                    Risk="Low";    Drivers=@("acnvm","acnamfd","acsock");                            Services=@("acnvmagent","Cisco AnyConnect NVM","Cisco Secure Client NVM"); Desc="Primarily telemetry and visibility focused." }
+
+    # ─── Citrix ─────────────────────────────────────────────────────
+    @{ Name="Citrix Secure Access / NetScaler Gateway"; Risk="High"; Drivers=@("nsgwfp","nswfp","nsload","dne","deterministicnetworkenhancer","citrixvpn","ctxvpn"); Services=@("Citrix Secure Access","Citrix Gateway Plugin","NetScaler Gateway Plugin","nsgateway","ctxvpn"); Desc="Citrix VPN and Secure Access clients may overlap with GSA routing, DNS, and private access handling." }
+
+    # ─── Fortinet ────────────────────────────────────────────────────
+    @{ Name="Fortinet FortiClient"; Risk="High"; Drivers=@("fortifilter","fortiwf","fortissl","fortivpn","fortidrv"); Services=@("FortiClient","FortiClient Service Scheduler","FortiWF"); Desc="FortiClient provides VPN, ZTNA, filtering, and policy enforcement that may conflict with GSA." }
+
+    # ─── Ivanti / Pulse ──────────────────────────────────────────────────
+    @{ Name="Ivanti Secure Access / Pulse Secure"; Risk="High"; Drivers=@("jnprns","dsNcAdpt","pulse","pulsesecure","ivanti"); Services=@("PulseSecureService","Ivanti Secure Access","dsNcService"); Desc="Pulse Secure and Ivanti VPN clients may interfere with GSA tunnel ownership and routing." }
+
+    # ─── F5 ─────────────────────────────────────────────────────
+    @{ Name="F5 BIG-IP Edge Client"; Risk="High"; Drivers=@("f5vpn","f5ndis","f5fpclient"); Services=@("BIG-IP Edge Client","F5 Networks VPN Service"); Desc="F5 SSL VPN functionality may overlap with GSA traffic steering." }
+
+    # ─── SonicWall ───────────────────────────────────────────────────
+    @{ Name="SonicWall NetExtender"; Risk="High"; Drivers=@("sonicwall","netextender","nxdrv","swvnic"); Services=@("NetExtender","SONICWALL_NetExtender"); Desc="SonicWall SSL VPN client may conflict with GSA routing and DNS handling." }
+
+    # ─── Sophos ─────────────────────────────────────────────────────
+    @{ Name="Sophos Connect / Sophos ZTNA"; Risk="High"; Drivers=@("sophos","sophosnetfilter","sophosztna"); Services=@("Sophos Connect Service","Sophos ZTNA","Sophos Network Threat Protection"); Desc="Sophos VPN and ZTNA solutions may overlap with GSA network controls." }
+
+    # ─── Absolute / NetMotion ──────────────────────────────────────────────
+    @{ Name="Absolute Secure Access / NetMotion"; Risk="High"; Drivers=@("netmotion","nmfilter","nmdrv","mobility"); Services=@("NetMotion Mobility Client","Absolute Secure Access"); Desc="NetMotion mobility and ZTNA traffic management may conflict with GSA." }
+
+    # ─── Appgate ─────────────────────────────────────────────────────
+    @{ Name="Appgate SDP"; Risk="High"; Drivers=@("appgate","appgatesdp","agtun"); Services=@("Appgate SDP Client","Appgate SDP Service"); Desc="Appgate SDP provides private access tunnels that may overlap directly with GSA private access." }
+
+    # ─── Akamai ─────────────────────────────────────────────────────
+    @{ Name="Akamai Enterprise Application Access"; Risk="Medium"; Drivers=@("akamai","eaa","akamaiaccess"); Services=@("Akamai EAA Client","EAAClient"); Desc="Akamai EAA provides ZTNA functionality and may overlap with GSA private application access." }
+
+    # ─── Modern ZTNA ──────────────────────────────────────────────────
+    @{ Name="Twingate"; Risk="Medium"; Drivers=@("twingate","wintun"); Services=@("Twingate","Twingate Service"); Desc="Twingate private access routing may overlap with GSA depending on configuration." }
+
+    # ─── Endpoint Security ───────────────────────────────────────────────
+    @{ Name="Trellix";          Risk="High";   Drivers=@("mfewfpk","xagt","HipShieldK");              Services=@("xagt","Trellix","McAfeeDLPAgentService");   Desc="Trellix endpoint and DLP controls may interfere with GSA traffic processing." }
+    @{ Name="Symantec/Broadcom"; Risk="Medium"; Drivers=@("symnets","srtspx","SymEvent");              Services=@("SepMasterService","SymNetDrv");             Desc="Symantec network protection components may affect GSA depending on policy." }
+    @{ Name="CrowdStrike";      Risk="Low";    Drivers=@("csagent","CrowdStrike");                    Services=@("CSFalconService","CrowdStrike");            Desc="Generally coexists but useful to inventory." }
+    @{ Name="SentinelOne";      Risk="Low";    Drivers=@("sentinelmonitor","SentinelAgent","s1filter"); Services=@("SentinelAgent","SentinelOne");              Desc="Generally coexists but may affect networking under some policies." }
+
+    # ─── VPN / Mesh VPN ───────────────────────────────────────────────────
+    @{ Name="OpenVPN";  Risk="Medium"; Drivers=@("ovpn-dco","tap_ovpnconnect","tapwindows","ovpnco"); Services=@("OpenVPNService","OpenVPN Connect","ovpnhelper"); Desc="OpenVPN virtual adapters and routing may overlap with GSA." }
+    @{ Name="WireGuard"; Risk="Medium"; Drivers=@("wintun","WireGuard","wireguard");                   Services=@("WireGuardTunnel","WireGuardManager");          Desc="WireGuard uses Wintun-based tunneling which may create route ownership conflicts." }
+    @{ Name="Tailscale"; Risk="Medium"; Drivers=@("wintun","tailscale");                               Services=@("Tailscale","tailscaled");                      Desc="Tailscale mesh VPN may create overlapping route ownership with GSA." }
+
+    # ─── Traffic Shaping / Monitoring ─────────────────────────────────────────
+    @{ Name="NetLimiter"; Risk="Medium"; Drivers=@("nldrv","netlimiter"); Services=@("nlsvc","NetLimiter"); Desc="Traffic shaping and filtering may affect GSA traffic classification." }
+
 )
 
 # ─── Collect system data ──────────────────────────────────────────────────────
@@ -1160,7 +1203,7 @@ const vendorRemediation = {
   "Symantec/Broadcom":"Disable Symantec Endpoint Protection's 'Network Threat Protection' module or add the GlobalSecureAccessDriver to the excluded drivers list in SEP policy.",
   "CrowdStrike":      "CrowdStrike Falcon generally coexists with GSA. If issues arise, verify that Falcon sensor network telemetry is not set to block/redirect mode. Contact CrowdStrike for a GSA exclusion policy.",
   "SentinelOne":      "In SentinelOne console, add GlobalSecureAccessDriver and its associated binaries to the exclusion list. Enable 'Interoperability mode' if available for your agent version.",
-  "Palo Alto Prisma":  "GlobalProtect VPN and GSA Client cannot run on the same device simultaneously. Disable GlobalProtect or Prisma Access on GSA-managed devices, or use split-tunneling in GlobalProtect to exclude Entra/M365 destinations.",
+  "Palo Alto Prisma / GlobalProtect": "GlobalProtect VPN and GSA Client cannot run on the same device simultaneously. Disable GlobalProtect or Prisma Access on GSA-managed devices, or use split-tunneling in GlobalProtect to exclude Entra/M365 destinations.",
   "Cisco Secure Client / AnyConnect VPN": "Configure Cisco Secure Client split-tunneling to exclude Microsoft 365, Entra ID, and GSA tunnel endpoints. In the Secure Client profile editor, add exclusion routes for M365/Entra IP ranges. On devices where GSA is the primary network access client, disable the VPN module.",
   "Cisco Secure Client - Umbrella Module": "The Umbrella module performs local DNS interception which conflicts with GSA DNS-based private app resolution. Disable the Umbrella Roaming Security module on GSA-managed devices, or configure DNS bypass rules for GSA-handled domains via the Umbrella dashboard Policy settings.",
   "Cisco Umbrella Roaming Client": "Cisco Umbrella Roaming Client intercepts DNS via loopback redirection, conflicting with GSA private DNS resolution. Uninstall or disable the Umbrella Roaming Client on GSA-managed devices, or configure DNS bypass rules for GSA-handled domains in the Umbrella policy.",
@@ -1175,6 +1218,15 @@ const vendorRemediation = {
   "NetLimiter":       "NetLimiter's kernel-mode WFP driver (nldrv.sys) classifies and shapes traffic per application. This can interfere with how GSA steers traffic into its tunnel. If GSA tunnel connectivity is degraded, try temporarily disabling NetLimiter rules that apply to the GlobalSecureAccess processes, or add an exclusion rule for GlobalSecureAccessDriver and its associated services.",
   "Cloudflare One":   "Cloudflare One Client (WARP) intercepts network traffic at the same WFP layers as GSA Client. Running both simultaneously can cause tunnel failures and traffic routing issues. Configure WARP split-tunneling to exclude Microsoft 365, Entra ID, and Private Access destinations, or disable WARP on devices where GSA is the active network access client.",
   "Citrix Secure Access / NetScaler Gateway": "Citrix Secure Access and NetScaler Gateway VPN clients use WFP callouts or the legacy Deterministic Network Enhancer (DNE) driver for VPN and split-tunnel control. This can conflict with GSA traffic steering and private access. In the Citrix Gateway console, configure split-tunnel policy to exclude Microsoft 365, Entra ID, and GSA-tunneled destinations. On devices where GSA handles private access, disable the Citrix VPN module or switch Citrix to clientless/web-only mode.",
+  "Fortinet FortiClient": "FortiClient VPN and ZTNA components may conflict with GSA tunnel ownership and traffic steering. In the FortiClient EMS console, configure split-tunnel to exclude Microsoft 365 and Entra ID destinations. On devices where GSA is the primary ZTNA client, disable the FortiClient VPN and ZTNA modules.",
+  "Ivanti Secure Access / Pulse Secure": "Pulse Secure and Ivanti VPN tunnel traffic may conflict with GSA routing. Configure Ivanti split-tunnel policy to exclude Microsoft 365, Entra ID, and Private Access destinations. On GSA-managed devices, disable the Ivanti VPN module or migrate to GSA for private application access.",
+  "F5 BIG-IP Edge Client": "F5 SSL VPN creates a virtual network adapter and routing rules that may conflict with GSA. Configure F5 Network Access resource to exclude Microsoft 365 and Entra ID prefixes from the VPN tunnel, or disable F5 Edge Client on devices where GSA handles private access.",
+  "SonicWall NetExtender": "SonicWall NetExtender VPN client installs a virtual adapter and may create routing conflicts with GSA. Configure SonicWall split-tunnel to exclude Microsoft 365, Entra ID, and GSA-handled destinations, or disconnect NetExtender on devices actively using GSA tunnels.",
+  "Sophos Connect / Sophos ZTNA": "Sophos VPN and ZTNA components may conflict with GSA traffic interception. In Sophos Central, configure split-tunnel for the VPN policy to exclude Microsoft 365 and Entra ID traffic. On devices where GSA handles ZTNA, disable the Sophos ZTNA Gateway connector.",
+  "Absolute Secure Access / NetMotion": "NetMotion Mobility performs persistent traffic management that may conflict with GSA routing. Coordinate with your NetMotion/Absolute administrator to configure traffic policy exclusions for Microsoft 365, Entra ID, and GSA-tunneled destinations.",
+  "Appgate SDP": "Appgate SDP creates private access tunnels that overlap directly with GSA private access. On devices where GSA provides private application access, disable or remove Appgate SDP. If both must coexist, configure Appgate entitlements to not overlap with resources handled by GSA.",
+  "Akamai Enterprise Application Access": "Akamai EAA client provides ZTNA-style application proxying that may overlap with GSA private access. Configure Akamai EAA to exclude applications and destinations already handled by GSA, or consolidate to a single ZTNA client.",
+  "Twingate": "Twingate routes private network traffic via its connector, which may conflict with GSA private access routing. Configure Twingate resources to exclude destinations handled by GSA, or disable Twingate on devices where GSA is the designated private access client.",
 };
 const recoList = document.getElementById("recoList");
 const recos = [];
