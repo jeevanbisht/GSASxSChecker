@@ -53,6 +53,37 @@ _(New entries go here during development)_
 
 ---
 
+## [1.4.0] — 2026-06-10
+
+### Added
+
+- **Perimeter 81** (Risk: High) — detects `perimeter81`, `p81`, `wintun` drivers and `Perimeter81` / `Perimeter81Service` services. ZTNA/VPN tunnels overlap with GSA traffic steering.
+- **NordLayer** (Risk: High) — detects `nordlayer`, `nordlynx`, `wintun` drivers and `NordLayer` / `NordLayerService` services. Business ZTNA/VPN with route ownership may conflict with GSA.
+- **Keeper Connection Manager** (Risk: Medium) — detects `keeper`, `keeperztna` drivers and `Keeper` / `KeeperConnectionManager` services. ZTNA capabilities may overlap with GSA private access.
+- **Open Systems SASE** (Risk: High) — detects `opensystems`, `ose`, `osevpn` drivers and `OpenSystems` / `OpenSystemsAgent` services. Managed SASE client with traffic steering.
+- **Barracuda VPN** (Risk: High) — detects `barracuda`, `barracudavpn` drivers and `BarracudaVPN` / `Barracuda Network Access Client` services. VPN tunnel ownership conflicts with GSA routing.
+- **WatchGuard Mobile VPN** (Risk: High) — detects `wgvpn`, `watchguardvpn` drivers and `WatchGuard Mobile VPN` / `WGVPN` services. SSL/IPsec VPN route ownership.
+- **Array Networks VPN** (Risk: Medium) — detects `arrayvpn`, `agsslvpn` drivers and `Array Networks SSL VPN` / `ArrayVPN` services. Enterprise SSL VPN client.
+- **Aruba VIA** (Risk: Medium) — detects `arubavia`, `via` drivers and `Aruba VIA` / `ArubaVIAService` services. Virtual adapters and routing may conflict with GSA.
+- **Digital Guardian** (Risk: High) — detects `dgflt`, `dgwfp`, `dgagent` drivers and `DgService` / `DigitalGuardian` services. Kernel DLP filtering may interfere with GSA traffic processing.
+- **Proofpoint Endpoint DLP** (Risk: Medium) — detects `proofpoint`, `ppwfp` drivers and `Proofpoint` / `Proofpoint Endpoint` services. Network monitoring may affect GSA classification.
+- **CoSoSys Endpoint Protector** (Risk: Medium) — detects `epp`, `endpointprotector` drivers and `EndpointProtector` / `EPPService` services. Endpoint DLP with network controls.
+- **ManageEngine DataSecurity Plus** (Risk: Low) — detects `dsp`, `manageengine` drivers and `DataSecurityPlus` service. Monitoring/inspection; generally coexists but should be inventoried.
+- **Menlo Security** (Risk: Medium) — detects `menlo`, `menlofilter` drivers and `MenloSecurity` / `MenloAgent` services. Isolation and SWG functions may affect traffic steering.
+- **Ericom Shield** (Risk: Medium) — detects `ericom`, `shield` drivers and `EricomShield` / `ShieldAgent` services. Browser isolation may overlap with GSA internet access routing.
+- **ZeroTier** (Risk: Medium) — detects `zerotier`, `ztvirtual` drivers and `ZeroTierOne` service. Overlay network virtual adapters and route injection may conflict with GSA.
+- **NetBird** (Risk: Medium) — detects `netbird`, `wintun` drivers and `NetBird` / `NetBirdService` services. WireGuard-based mesh VPN using Wintun.
+- **Headscale** (Risk: Low) — detects `wintun` driver and `Headscale` service. Tailscale-compatible Wintun deployments; generally low risk but inventoried.
+
+### Changed
+
+- Vendor count bumped from **32 → 49** in README and detection pipeline description.
+- `$script:Version` and `.NOTES` updated to `1.4.0`.
+- `docs/user-guide.html` vendor list updated with 17 new vendor chips.
+- `.DESCRIPTION` header updated to list all new vendor names.
+
+---
+
 ## [1.3.3] — 2026-06-09
 
 ### Changed

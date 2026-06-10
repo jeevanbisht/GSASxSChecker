@@ -111,14 +111,14 @@ The HTML is a **single-quoted PowerShell here-string** (`@'...'@`) inside `Get-G
 Whenever the vendor count changes, update **all three** of these:
 
 ```
-README.md           line ~20   | **17 vendor signatures** | Forcepoint, ...
-README.md           line ~118  | 17 curated vendor patterns
+README.md           line ~20   | **49 vendor signatures** | Forcepoint, ...
+README.md           line ~118  | 49 curated vendor patterns
 docs/user-guide.html           | vendor <span> chips (one per vendor, no count text)
 CHANGELOG.md                   | prose description of changes
 ```
 
-The count is currently **32**. The 32 vendors are:
-Forcepoint, Check Point, Skyhigh/McAfee, Zscaler, Netskope, Cloudflare One, iboss, Palo Alto Prisma/GlobalProtect, Cisco Secure Client/AnyConnect, Cisco Umbrella Module, Cisco Umbrella Roaming Client, Cisco Secure Endpoint, Cisco Secure Access, Cisco AnyConnect NVM, Citrix Secure Access/NetScaler Gateway, Fortinet FortiClient, Ivanti Secure Access/Pulse Secure, F5 BIG-IP Edge Client, SonicWall NetExtender, Sophos Connect/ZTNA, Absolute Secure Access/NetMotion, Appgate SDP, Akamai EAA, Twingate, Trellix, Symantec/Broadcom, CrowdStrike, SentinelOne, OpenVPN, WireGuard, Tailscale, NetLimiter.
+The count is currently **49**. The 49 vendors are:
+Forcepoint, Check Point, Skyhigh/McAfee, Zscaler, Netskope, Cloudflare One, iboss, Palo Alto Prisma/GlobalProtect, Cisco Secure Client/AnyConnect, Cisco Umbrella Module, Cisco Umbrella Roaming Client, Cisco Secure Endpoint, Cisco Secure Access, Cisco AnyConnect NVM, Citrix Secure Access/NetScaler Gateway, Fortinet FortiClient, Ivanti Secure Access/Pulse Secure, F5 BIG-IP Edge Client, SonicWall NetExtender, Sophos Connect/ZTNA, Absolute Secure Access/NetMotion, Appgate SDP, Akamai EAA, Twingate, Trellix, Symantec/Broadcom, CrowdStrike, SentinelOne, OpenVPN, WireGuard, Tailscale, NetLimiter, Perimeter 81, NordLayer, Keeper Connection Manager, Open Systems SASE, Barracuda VPN, WatchGuard Mobile VPN, Array Networks VPN, Aruba VIA, Digital Guardian, Proofpoint Endpoint DLP, CoSoSys Endpoint Protector, ManageEngine DataSecurity Plus, Menlo Security, Ericom Shield, ZeroTier, NetBird, Headscale.
 
 ---
 

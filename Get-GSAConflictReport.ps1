@@ -10,7 +10,12 @@
     Cisco Secure Client/AnyConnect, Cisco Umbrella, Cisco Secure Endpoint, Cisco Secure Access,
     Citrix Secure Access, Fortinet FortiClient, Ivanti/Pulse Secure, F5 BIG-IP Edge,
     SonicWall, Sophos, Absolute/NetMotion, Appgate, Akamai EAA, Twingate, iboss,
-    Trellix, OpenVPN, WireGuard, Cloudflare One, and more)
+    Trellix, OpenVPN, WireGuard, Cloudflare One, Tailscale, NetLimiter,
+    Perimeter 81, NordLayer, Keeper Connection Manager, Open Systems SASE,
+    Barracuda VPN, WatchGuard Mobile VPN, Array Networks VPN, Aruba VIA,
+    Digital Guardian, Proofpoint Endpoint DLP, CoSoSys Endpoint Protector,
+    ManageEngine DataSecurity Plus, Menlo Security, Ericom Shield,
+    ZeroTier, NetBird, Headscale, and more)
     that are known to conflict with the Microsoft Global Secure Access (GSA) client.
 
     The GSA client uses a WFP callout driver (GlobalSecureAccessDriver) to intercept
@@ -70,7 +75,7 @@
     Path to the generated HTML file is written to the host.
 
 .NOTES
-    Version      : 1.3.3
+    Version      : 1.4.0
     Author       : Jeevan Bisht
     Project      : https://github.com/jeevanbisht/GSASxSChecker
     License      : MIT
@@ -108,7 +113,7 @@ param(
     [switch]$NoBrowser
 )
 
-$script:Version = '1.3.3'
+$script:Version = '1.4.0'
 
 # ─── Known conflicting vendors ───────────────────────────────────────────────
 $KnownVendors = @(
@@ -176,6 +181,33 @@ $KnownVendors = @(
 
     # ─── Traffic Shaping / Monitoring ─────────────────────────────────────────
     @{ Name="NetLimiter"; Risk="Medium"; Drivers=@("nldrv","netlimiter"); Services=@("nlsvc","NetLimiter"); Desc="Traffic shaping and filtering may affect GSA traffic classification." }
+
+    # ─── SSE / ZTNA / SWG (Extended) ──────────────────────────────────────────
+    @{ Name="Perimeter 81";            Risk="High";   Drivers=@("perimeter81","p81","wintun");        Services=@("Perimeter81","Perimeter81Service");                    Desc="ZTNA and secure access platform that installs tunnels and traffic steering components similar to GSA." }
+    @{ Name="NordLayer";               Risk="High";   Drivers=@("nordlayer","nordlynx","wintun");     Services=@("NordLayer","NordLayerService");                        Desc="Business ZTNA and VPN solution that owns routes and tunnel interfaces." }
+    @{ Name="Keeper Connection Manager"; Risk="Medium"; Drivers=@("keeper","keeperztna");             Services=@("Keeper","KeeperConnectionManager");                    Desc="ZTNA capabilities may overlap with GSA private access scenarios." }
+    @{ Name="Open Systems SASE";       Risk="High";   Drivers=@("opensystems","ose","osevpn");        Services=@("OpenSystems","OpenSystemsAgent");                      Desc="Managed SASE client performing traffic steering and filtering that may overlap with GSA." }
+
+    # ─── VPN (Extended) ───────────────────────────────────────────────────────
+    @{ Name="Barracuda VPN";           Risk="High";   Drivers=@("barracuda","barracudavpn");          Services=@("BarracudaVPN","Barracuda Network Access Client");       Desc="VPN tunnel ownership may conflict with GSA routing and traffic interception." }
+    @{ Name="WatchGuard Mobile VPN";   Risk="High";   Drivers=@("wgvpn","watchguardvpn");            Services=@("WatchGuard Mobile VPN","WGVPN");                       Desc="SSL/IPsec VPN client with route ownership that may conflict with GSA." }
+    @{ Name="Array Networks VPN";      Risk="Medium"; Drivers=@("arrayvpn","agsslvpn");              Services=@("Array Networks SSL VPN","ArrayVPN");                   Desc="Enterprise SSL VPN client that may overlap with GSA private access." }
+    @{ Name="Aruba VIA";               Risk="Medium"; Drivers=@("arubavia","via");                   Services=@("Aruba VIA","ArubaVIAService");                         Desc="Enterprise VPN client which installs virtual adapters and routes that may conflict with GSA." }
+
+    # ─── DLP / Endpoint Security (Extended) ───────────────────────────────────
+    @{ Name="Digital Guardian";        Risk="High";   Drivers=@("dgflt","dgwfp","dgagent");          Services=@("DgService","DigitalGuardian");                         Desc="DLP agent uses kernel filtering and network inspection that may interfere with GSA traffic processing." }
+    @{ Name="Proofpoint Endpoint DLP"; Risk="Medium"; Drivers=@("proofpoint","ppwfp");               Services=@("Proofpoint","Proofpoint Endpoint");                    Desc="Endpoint DLP and network monitoring capabilities may affect GSA traffic classification." }
+    @{ Name="CoSoSys Endpoint Protector"; Risk="Medium"; Drivers=@("epp","endpointprotector");       Services=@("EndpointProtector","EPPService");                      Desc="Endpoint DLP solution with network controls that may coexist conditionally with GSA." }
+    @{ Name="ManageEngine DataSecurity Plus"; Risk="Low"; Drivers=@("dsp","manageengine");           Services=@("DataSecurityPlus");                                    Desc="Monitoring and inspection components may coexist but should be inventoried." }
+
+    # ─── Browser Isolation / SWG ──────────────────────────────────────────────
+    @{ Name="Menlo Security";          Risk="Medium"; Drivers=@("menlo","menlofilter");              Services=@("MenloSecurity","MenloAgent");                          Desc="Isolation and secure web gateway functions may affect GSA traffic steering depending on configuration." }
+    @{ Name="Ericom Shield";           Risk="Medium"; Drivers=@("ericom","shield");                  Services=@("EricomShield","ShieldAgent");                          Desc="Browser isolation and secure access platform that may overlap with GSA internet access routing." }
+
+    # ─── Overlay Networking / Mesh VPN ────────────────────────────────────────
+    @{ Name="ZeroTier";                Risk="Medium"; Drivers=@("zerotier","ztvirtual");             Services=@("ZeroTierOne");                                         Desc="Overlay network with virtual adapters and route injection that may conflict with GSA traffic redirection." }
+    @{ Name="NetBird";                 Risk="Medium"; Drivers=@("netbird","wintun");                 Services=@("NetBird","NetBirdService");                            Desc="WireGuard-based enterprise mesh networking using Wintun that may create route conflicts with GSA." }
+    @{ Name="Headscale";               Risk="Low";    Drivers=@("wintun");                           Services=@("Headscale");                                           Desc="Tailscale-compatible deployments using Wintun adapters; generally low risk but should be inventoried." }
 
 )
 
@@ -1227,6 +1259,23 @@ const vendorRemediation = {
   "Appgate SDP": "Appgate SDP creates private access tunnels that overlap directly with GSA private access. On devices where GSA provides private application access, disable or remove Appgate SDP. If both must coexist, configure Appgate entitlements to not overlap with resources handled by GSA.",
   "Akamai Enterprise Application Access": "Akamai EAA client provides ZTNA-style application proxying that may overlap with GSA private access. Configure Akamai EAA to exclude applications and destinations already handled by GSA, or consolidate to a single ZTNA client.",
   "Twingate": "Twingate routes private network traffic via its connector, which may conflict with GSA private access routing. Configure Twingate resources to exclude destinations handled by GSA, or disable Twingate on devices where GSA is the designated private access client.",
+  "Perimeter 81": "Perimeter 81 installs a WireGuard/IPsec-based tunnel client that may conflict with GSA traffic steering. Configure Perimeter 81 split-tunnel policy to exclude Microsoft 365, Entra ID, and GSA-tunneled destinations, or disable Perimeter 81 on devices where GSA is the active ZTNA client.",
+  "NordLayer": "NordLayer owns network routes and tunnel interfaces using WireGuard. Configure NordLayer to use split-tunnel mode, excluding Microsoft 365, Entra ID, and Private Access destinations from its tunnel.",
+  "Keeper Connection Manager": "Keeper Connection Manager's ZTNA features may overlap with GSA private access. Review application access policies in Keeper to ensure resources already handled by GSA are excluded from Keeper's tunnel.",
+  "Open Systems SASE": "Open Systems SASE client performs traffic steering and filtering similar to GSA. Coordinate with your Open Systems administrator to configure traffic exclusions for Microsoft 365, Entra ID, and GSA-tunneled destinations.",
+  "Barracuda VPN": "Barracuda VPN tunnel ownership may conflict with GSA routing. Configure Barracuda Network Access Client with split-tunnel exclusions for Microsoft 365 and Entra ID prefixes, or disconnect Barracuda VPN on devices using GSA tunnels.",
+  "WatchGuard Mobile VPN": "WatchGuard Mobile VPN SSL/IPsec client may conflict with GSA route ownership. Configure split-tunnel exclusions for Microsoft 365 and Entra ID destinations, or disconnect the WatchGuard VPN while GSA tunnels are active.",
+  "Array Networks VPN": "Array Networks SSL VPN may overlap with GSA private access routing. Configure the Array VPN resource policy to exclude destinations handled by GSA, or disable the Array VPN client on devices where GSA manages private application access.",
+  "Aruba VIA": "Aruba VIA installs virtual adapters and routing rules that may conflict with GSA. Configure Aruba VIA split-tunnel policy to exclude Microsoft 365, Entra ID, and GSA-tunneled destinations.",
+  "Digital Guardian": "Digital Guardian DLP uses kernel-level WFP filtering that may interfere with GSA traffic processing. Add GlobalSecureAccessDriver and its associated services to the Digital Guardian exclusion policy, or disable the network interception module on GSA-managed devices.",
+  "Proofpoint Endpoint DLP": "Proofpoint Endpoint DLP monitors network traffic for data loss prevention and may affect GSA tunnel classification. Add GSA executables and drivers to the Proofpoint exclusion list to prevent interference with tunnel traffic.",
+  "CoSoSys Endpoint Protector": "CoSoSys Endpoint Protector uses network controls that may conditionally conflict with GSA. Review network monitoring policies in the Endpoint Protector console and add GSA drivers and services to the exclusion list.",
+  "ManageEngine DataSecurity Plus": "ManageEngine DataSecurity Plus is primarily a monitoring tool with low conflict risk. Inventory its network inspection policies and ensure GlobalSecureAccessDriver is excluded from active inspection rules.",
+  "Menlo Security": "Menlo Security isolation and SWG functions may affect GSA traffic steering. Configure Menlo Security policy to bypass GSA-tunneled traffic (Microsoft 365, Entra ID, Private Access destinations), or disable the Menlo Security connector on GSA-managed devices.",
+  "Ericom Shield": "Ericom Shield browser isolation may overlap with GSA internet access routing. Configure Ericom Shield to exclude Microsoft 365 and Entra ID traffic from isolation, ensuring GSA handles those flows.",
+  "ZeroTier": "ZeroTier injects virtual network adapters and custom routes that may conflict with GSA traffic redirection. Configure ZeroTier network rules to exclude Microsoft 365, Entra ID, and Private Access prefixes, or leave those routes to be handled exclusively by GSA.",
+  "NetBird": "NetBird uses the Wintun kernel driver for its mesh VPN tunnel, which operates at the same WFP layers as GSA. Configure NetBird split-tunnel routes to exclude Microsoft 365, Entra ID, and GSA-tunneled destinations.",
+  "Headscale": "Headscale-based Tailscale deployments use the Wintun adapter and are generally low risk. If GSA connectivity issues arise, verify that Wintun driver registration does not conflict with GSA and configure split-tunnel to exclude GSA-managed destinations.",
 };
 const recoList = document.getElementById("recoList");
 const recos = [];
