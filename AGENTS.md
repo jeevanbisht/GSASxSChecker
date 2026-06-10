@@ -105,8 +105,8 @@ docs/user-guide.html           | vendor <span> chips (one per vendor, no count t
 CHANGELOG.md                   | prose description of changes
 ```
 
-The count is currently **22**. The 22 vendors are:
-Forcepoint, Check Point, Skyhigh/McAfee, Zscaler, Netskope, Symantec/Broadcom, CrowdStrike, SentinelOne, Palo Alto Prisma, Cisco Secure Client/AnyConnect, Cisco Umbrella Module, Cisco Umbrella Roaming Client, Cisco Secure Endpoint, Cisco Secure Access, Cisco AnyConnect NVM, iboss, Trellix, OpenVPN, WireGuard, Tailscale, NetLimiter, Cloudflare One.
+The count is currently **23**. The 23 vendors are:
+Forcepoint, Check Point, Skyhigh/McAfee, Zscaler, Netskope, Symantec/Broadcom, CrowdStrike, SentinelOne, Palo Alto Prisma, Cisco Secure Client/AnyConnect, Cisco Umbrella Module, Cisco Umbrella Roaming Client, Cisco Secure Endpoint, Cisco Secure Access, Cisco AnyConnect NVM, Citrix Secure Access/NetScaler Gateway, iboss, Trellix, OpenVPN, WireGuard, Tailscale, NetLimiter, Cloudflare One.
 
 ---
 

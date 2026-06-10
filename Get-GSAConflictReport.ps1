@@ -8,7 +8,7 @@
     drivers and services from known security vendors (Forcepoint, Check Point,
     Skyhigh, Zscaler, Netskope, Palo Alto, CrowdStrike, SentinelOne, Symantec,
     Cisco Secure Client/AnyConnect, Cisco Umbrella, Cisco Secure Endpoint,
-    Cisco Secure Access, iboss, Trellix, OpenVPN, WireGuard, Cloudflare One, and more)
+    Cisco Secure Access, Citrix Secure Access, iboss, Trellix, OpenVPN, WireGuard, Cloudflare One, and more)
     that are known to conflict with the Microsoft Global Secure Access (GSA) client.
 
     The GSA client uses a WFP callout driver (GlobalSecureAccessDriver) to intercept
@@ -133,6 +133,7 @@ $KnownVendors = @(
     @{ Name="Tailscale";       Risk="Medium"; Drivers=@("wintun","tailscale"); Services=@("Tailscale","tailscaled"); Desc="Tailscale uses the Wintun kernel driver and registers WFP callouts for its mesh VPN tunnel. Running alongside GSA may cause traffic routing conflicts depending on which destinations each product is configured to handle." }
     @{ Name="NetLimiter";      Risk="Medium"; Drivers=@("nldrv","netlimiter"); Services=@("nlsvc","NetLimiter","nlsvc"); Desc="NetLimiter installs a kernel-mode WFP driver (nldrv.sys) to shape and monitor network traffic per application. Its WFP callouts may interfere with GSA tunnel traffic classification and steering." }
     @{ Name="Cloudflare One";  Risk="High";   Drivers=@("cfwfpco","cfwfp","cloudflare"); Services=@("CloudflareWARP","WARP","warp-svc"); Desc="Cloudflare One Client (WARP) intercepts and tunnels network traffic at the same WFP layers as GSA. Running both agents simultaneously can cause traffic steering conflicts, tunnel failures, and degraded user experience." }
+    @{ Name="Citrix Secure Access / NetScaler Gateway"; Risk="High"; Drivers=@("nsgwfp","nswfp","nsload","dne","deterministicnetworkenhancer","citrixvpn","ctxvpn"); Services=@("Citrix Secure Access","Citrix Gateway Plugin","NetScaler Gateway Plugin","nsgateway","ctxvpn"); Desc="Citrix Secure Access client / NetScaler Gateway VPN can use WFP or legacy DNE drivers for split tunneling, reverse split tunneling, DNS handling, and VPN traffic interception. This can overlap with GSA traffic steering and private access classification." }
 )
 
 # ─── Collect system data ──────────────────────────────────────────────────────
@@ -1173,6 +1174,7 @@ const vendorRemediation = {
   "Tailscale":        "Tailscale uses the Wintun kernel driver for its mesh VPN tunnel, which operates at the same WFP layers as GSA. If you experience connectivity issues, configure Tailscale's split-tunneling to exclude Microsoft 365, Entra ID, and Private Access destinations, or pause the Tailscale connection while GSA tunnels are active.",
   "NetLimiter":       "NetLimiter's kernel-mode WFP driver (nldrv.sys) classifies and shapes traffic per application. This can interfere with how GSA steers traffic into its tunnel. If GSA tunnel connectivity is degraded, try temporarily disabling NetLimiter rules that apply to the GlobalSecureAccess processes, or add an exclusion rule for GlobalSecureAccessDriver and its associated services.",
   "Cloudflare One":   "Cloudflare One Client (WARP) intercepts network traffic at the same WFP layers as GSA Client. Running both simultaneously can cause tunnel failures and traffic routing issues. Configure WARP split-tunneling to exclude Microsoft 365, Entra ID, and Private Access destinations, or disable WARP on devices where GSA is the active network access client.",
+  "Citrix Secure Access / NetScaler Gateway": "Citrix Secure Access and NetScaler Gateway VPN clients use WFP callouts or the legacy Deterministic Network Enhancer (DNE) driver for VPN and split-tunnel control. This can conflict with GSA traffic steering and private access. In the Citrix Gateway console, configure split-tunnel policy to exclude Microsoft 365, Entra ID, and GSA-tunneled destinations. On devices where GSA handles private access, disable the Citrix VPN module or switch Citrix to clientless/web-only mode.",
 };
 const recoList = document.getElementById("recoList");
 const recos = [];
