@@ -5,7 +5,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![GitHub Issues](https://img.shields.io/github/issues/jeevanbisht/GSASxSChecker)](https://github.com/jeevanbisht/GSASxSChecker/issues)
 
-> **Detect Windows Filtering Platform (WFP) driver conflicts with the Microsoft Global Secure Access (GSA) client — in one command.**
+> **Detect potential conflicts with the Microsoft Global Secure Access (GSA) client by identifying coexisting network security products and their associated Windows Filtering Platform (WFP) drivers that may interfere with traffic interception, redirection, or filtering operations — in one command.**
 
 The **Global Secure Access (GSA)** client uses a kernel-mode WFP callout driver to intercept and tunnel network traffic. Other security or network access products may register WFP callouts at the same network layers, sometimes leading to conflicts — tunnels fail to establish, traffic is silently dropped, or the machine becomes unstable.
 
