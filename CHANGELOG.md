@@ -53,6 +53,16 @@ _(New entries go here during development)_
 
 ---
 
+## [1.3.2] — 2026-06-09
+
+### Fixed
+
+- **Palo Alto Prisma / GlobalProtect** remediation updated to official Microsoft coexistence guidance: In Strata Cloud Manager, add split-tunnel exclusions for `*.globalsecureaccess.microsoft.com` and GSA IPs (`150.171.19.0/24`, `13.107.232.0/24`, `151.206.0.0/16`, `6.6.0.0/16`, etc.). Disable 'Resolve All FQDNs Using DNS Servers Assigned by the Tunnel' for Private Access scenarios; enable it for Internet/M365-only scenarios. When GSA handles Internet Access, add `*.gpcloudservice.com` as GSA custom bypass. Ref: https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-palo-alto-coexistence
+- **Zscaler** remediation updated to official Microsoft coexistence guidance: In Zscaler Client Connector portal, create a Packet Filter-Based forwarding profile, then an app profile with GSA IPs (`150.171.15.0/24`–`6.6.0.0/16`) and FQDNs (`*.globalsecureaccess.microsoft.com`, tenant-specific client FQDNs) added to the VPN gateway bypass. When GSA handles Internet Access, add `*.prod.zpath.net` as GSA custom bypass. Ref: https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-zscaler-coexistence
+- **Netskope** remediation updated to official Microsoft coexistence guidance: Create 'MSFT SSE Service' and 'MSFT SSE M365' Network Location profiles in Netskope, then create a Steering Configuration with Bypass exceptions for those profiles and `*.globalsecureaccess.microsoft.com` domain. When GSA handles Internet Access, add `*.goskope.com` + Netskope IP ranges (`163.116.128.0/17`, `162.10.0.0/17`, etc.) as GSA custom bypass. Ref: https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-netskope-coexistence
+
+---
+
 ## [1.3.1] — 2026-06-09
 
 ### Fixed
