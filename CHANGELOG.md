@@ -53,6 +53,14 @@ _(New entries go here during development)_
 
 ---
 
+## [1.4.2] — 2026-06-10
+
+### Fixed
+
+- **Cloudflare One false positive**: removed the bare `"WARP"` service pattern which matched the Windows built-in **Warp JIT Service** (WinAppSDK MSIX JIT) via `*WARP*` substring. Detection is now scoped to `CloudflareWARP` and `warp-svc` only, which are exclusive to the Cloudflare WARP client.
+
+---
+
 ## [1.4.1] — 2026-06-10
 
 ### Fixed

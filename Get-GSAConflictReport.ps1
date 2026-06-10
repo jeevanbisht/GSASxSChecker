@@ -75,7 +75,7 @@
     Path to the generated HTML file is written to the host.
 
 .NOTES
-    Version      : 1.4.1
+    Version      : 1.4.2
     Author       : Jeevan Bisht
     Project      : https://github.com/jeevanbisht/GSASxSChecker
     License      : MIT
@@ -113,7 +113,7 @@ param(
     [switch]$NoBrowser
 )
 
-$script:Version = '1.4.1'
+$script:Version = '1.4.2'
 
 # ─── Known conflicting vendors ───────────────────────────────────────────────
 $KnownVendors = @(
@@ -124,7 +124,7 @@ $KnownVendors = @(
     @{ Name="Skyhigh/McAfee"; Risk="High";   Drivers=@("mfewfpk","mfefirek","mfehidk","cfwids");          Services=@("McAfee","Skyhigh","mfevtp","masvc");        Desc="Skyhigh and McAfee network security components may overlap with GSA traffic interception and policy enforcement." }
     @{ Name="Zscaler";        Risk="High";   Drivers=@("zscaler","zsa","ZSADriver");                       Services=@("ZSAService","ZscalerService","ZSTunnel");   Desc="Zscaler Client Connector performs traffic steering, DNS control, and tunnel ownership that may conflict with GSA." }
     @{ Name="Netskope";       Risk="High";   Drivers=@("nssdrv","NetskopeFilter","nswfp");                 Services=@("stAgentSvc","NetskopeService");             Desc="Netskope client intercepts network traffic for CASB and SSE functions and may overlap with GSA." }
-    @{ Name="Cloudflare One"; Risk="High";   Drivers=@("cfwfpco","cfwfp","cloudflare");                   Services=@("CloudflareWARP","WARP","warp-svc");         Desc="Cloudflare One Client (WARP) performs DNS, routing, and traffic steering similar to GSA." }
+    @{ Name="Cloudflare One"; Risk="High";   Drivers=@("cfwfpco","cfwfp","cloudflare");                   Services=@("CloudflareWARP","warp-svc");         Desc="Cloudflare One Client (WARP) performs DNS, routing, and traffic steering similar to GSA." }
     @{ Name="iboss";          Risk="Medium"; Drivers=@("iboss","ibossdrv");                               Services=@("ibossService","ibossAgent");                Desc="iboss cloud connector uses network filtering and traffic interception that may overlap with GSA." }
 
     # ─── Palo Alto ─────────────────────────────────────────────────────
