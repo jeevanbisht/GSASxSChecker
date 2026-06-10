@@ -118,6 +118,8 @@ $KnownVendors = @(
     @{ Name="Cisco AnyConnect";Risk="Medium"; Drivers=@("acvpnwfp","acsock","vpnva");                      Services=@("vpnagent","csc_svr","CiscoAnyConnect");     Desc="Cisco AnyConnect VPN uses WFP callouts that can interfere with GSA tunnel establishment." }
     @{ Name="iboss";           Risk="Medium"; Drivers=@("iboss","ibossdrv");                               Services=@("ibossService","ibossAgent");                Desc="iboss cloud connector uses network filtering that may overlap with GSA traffic interception." }
     @{ Name="Trellix";         Risk="High";   Drivers=@("mfewfpk","xagt","HipShieldK");                   Services=@("xagt","Trellix","McAfeeDLPAgentService");   Desc="Trellix (McAfee Enterprise) endpoint agent - same WFP conflict as McAfee consumer products." }
+    @{ Name="OpenVPN";         Risk="Medium"; Drivers=@("ovpn-dco","tap_ovpnconnect","tapwindows","ovpnco"); Services=@("OpenVPNService","OpenVPN Connect","ovpnhelper"); Desc="OpenVPN tunnel driver (TAP/DCO) uses WFP and may conflict with GSA traffic steering at the redirect layer." }
+    @{ Name="WireGuard";       Risk="Medium"; Drivers=@("wintun","WireGuard","wireguard"); Services=@("WireGuardTunnel","WireGuardManager"); Desc="WireGuard Wintun kernel driver registers WFP callouts for tunnel traffic that can conflict with GSA network interception." }
 )
 
 # ─── Collect system data ──────────────────────────────────────────────────────
