@@ -11,9 +11,9 @@
     that are known to conflict with the Microsoft Global Secure Access (GSA) client.
 
     The GSA client uses a WFP callout driver (GlobalSecureAccessDriver) to intercept
-    and tunnel network traffic. When competing products register callouts at the same
+    and tunnel network traffic. When multiple products register WFP callouts at the same
     ALE (Application Layer Enforcement) network layers, traffic can be silently
-    dropped — sometimes a leading cause of tunnels failing to establish, traffic being silently dropped, or the machine becoming unstable.
+    dropped — a common cause of tunnels failing to establish, traffic being misrouted, or the machine becoming unstable.
 
     The generated HTML report includes:
       - Risk banner (None / Low / Medium / High) with conflict count
@@ -110,18 +110,18 @@ $KnownVendors = @(
     @{ Name="Forcepoint";      Risk="High";   Drivers=@("fpwfp","fpdodriver","fpepflt","fp_wfp");           Services=@("fpcsvc","FPWFPDriver","ForcePoint");       Desc="Forcepoint Web Security / DLP uses WFP callouts at the same ALE layers as GSA, causing packet redirect conflicts." }
     @{ Name="Check Point";     Risk="High";   Drivers=@("vsdatant","cpfw","cptlsp","cpepflt");              Services=@("CheckPoint","cpd","amon","CPDA");           Desc="Check Point Endpoint Security registers persistent WFP providers that conflict with GSA tunnel callouts." }
     @{ Name="Skyhigh/McAfee";  Risk="High";   Drivers=@("mfewfpk","mfefirek","mfehidk","cfwids");          Services=@("McAfee","Skyhigh","mfevtp","masvc");        Desc="McAfee/Trellix/Skyhigh CASB & DLP hooks at ALE_CONNECT layer directly conflict with GSA traffic steering." }
-    @{ Name="Zscaler";         Risk="High";   Drivers=@("zscaler","zsa","ZSADriver");                       Services=@("ZSAService","ZscalerService","ZSTunnel");   Desc="Zscaler Client Connector and GSA both attempt to own the network redirect layer - only one can win." }
+    @{ Name="Zscaler";         Risk="High";   Drivers=@("zscaler","zsa","ZSADriver");                       Services=@("ZSAService","ZscalerService","ZSTunnel");   Desc="Zscaler Client Connector and GSA Client both register WFP callouts at the network redirect layer. Running both simultaneously can cause traffic steering conflicts, dropped tunnels, or unreachable resources." }
     @{ Name="Netskope";        Risk="High";   Drivers=@("nssdrv","NetskopeFilter","nswfp");                 Services=@("stAgentSvc","NetskopeService");             Desc="Netskope CASB client uses a WFP callout driver that intercepts the same traffic flows as GSA." }
     @{ Name="Symantec/Broadcom";Risk="Medium";Drivers=@("symnets","srtspx","SymEvent");              Services=@("SepMasterService","SymNetDrv");             Desc="Symantec Endpoint Protection network driver may conflict depending on policy configuration." }
     @{ Name="CrowdStrike";     Risk="Low";    Drivers=@("csagent","CrowdStrike");                          Services=@("CSFalconService","CrowdStrike");            Desc="CrowdStrike Falcon sensor uses WFP for network telemetry - generally coexists but monitor for issues." }
     @{ Name="SentinelOne";     Risk="Low";    Drivers=@("sentinelmonitor","SentinelAgent","s1filter");     Services=@("SentinelAgent","SentinelOne");              Desc="SentinelOne agent uses WFP for detection - usually low risk but can cause intermittent drops." }
-    @{ Name="Palo Alto Prisma";Risk="High";   Drivers=@("pangpd","PanWFP","PanGPA");                       Services=@("PanGPS","PanGPA","PrismaAccess");           Desc="Palo Alto GlobalProtect VPN and Prisma Access both compete with GSA for network layer ownership." }
+    @{ Name="Palo Alto Prisma";Risk="High";   Drivers=@("pangpd","PanWFP","PanGPA");                       Services=@("PanGPS","PanGPA","PrismaAccess");           Desc="Palo Alto GlobalProtect VPN and Prisma Access register WFP callouts at the same network layers as GSA. Running both can cause tunnel failures, traffic drops, or connectivity issues to protected resources." }
     @{ Name="Cisco AnyConnect";Risk="Medium"; Drivers=@("acvpnwfp","acsock","vpnva");                      Services=@("vpnagent","csc_svr","CiscoAnyConnect");     Desc="Cisco AnyConnect VPN uses WFP callouts that can interfere with GSA tunnel establishment." }
     @{ Name="iboss";           Risk="Medium"; Drivers=@("iboss","ibossdrv");                               Services=@("ibossService","ibossAgent");                Desc="iboss cloud connector uses network filtering that may overlap with GSA traffic interception." }
     @{ Name="Trellix";         Risk="High";   Drivers=@("mfewfpk","xagt","HipShieldK");                   Services=@("xagt","Trellix","McAfeeDLPAgentService");   Desc="Trellix (McAfee Enterprise) endpoint agent - same WFP conflict as McAfee consumer products." }
     @{ Name="OpenVPN";         Risk="Medium"; Drivers=@("ovpn-dco","tap_ovpnconnect","tapwindows","ovpnco"); Services=@("OpenVPNService","OpenVPN Connect","ovpnhelper"); Desc="OpenVPN tunnel driver (TAP/DCO) uses WFP and may conflict with GSA traffic steering at the redirect layer." }
     @{ Name="WireGuard";       Risk="Medium"; Drivers=@("wintun","WireGuard","wireguard"); Services=@("WireGuardTunnel","WireGuardManager"); Desc="WireGuard Wintun kernel driver registers WFP callouts for tunnel traffic that can conflict with GSA network interception." }
-    @{ Name="Cloudflare One";  Risk="High";   Drivers=@("cfwfpco","cfwfp","cloudflare"); Services=@("CloudflareWARP","WARP","warp-svc"); Desc="Cloudflare One Client (WARP) is a competing ZTNA/SASE agent that intercepts and tunnels network traffic at the same WFP layers as GSA, causing direct conflicts with traffic steering and tunnel establishment." }
+    @{ Name="Cloudflare One";  Risk="High";   Drivers=@("cfwfpco","cfwfp","cloudflare"); Services=@("CloudflareWARP","WARP","warp-svc"); Desc="Cloudflare One Client (WARP) intercepts and tunnels network traffic at the same WFP layers as GSA. Running both agents simultaneously can cause traffic steering conflicts, tunnel failures, and degraded user experience." }
 )
 
 # ─── Collect system data ──────────────────────────────────────────────────────
@@ -725,9 +725,9 @@ details[open] summary { color: var(--cp-accent); }
       <p style="font-size:13px;color:var(--cp-text-soft);line-height:1.7">
         This report scans for kernel-mode WFP (Windows Filtering Platform) callout drivers and services
         that are known to conflict with the <strong>Microsoft Global Secure Access (GSA) client</strong>.
-        GSA uses a WFP callout driver to intercept and tunnel traffic. When another product registers
-        competing callouts at the same network layers, traffic can be silently dropped, tunnels fail to
-        establish, or the machine may become unstable.
+        GSA uses a WFP callout driver to intercept and tunnel traffic. When another product also registers
+        WFP callouts at the same network layers, traffic can be silently dropped, tunnels may fail to
+        establish, or connectivity to protected resources may be degraded.
       </p>
     </div>
 
@@ -761,15 +761,15 @@ details[open] summary { color: var(--cp-accent); }
     <div class="card">
       <div class="card-title">WFP Callout Drivers <span class="count-badge" id="calloutBadge">0</span></div>
       <p style="font-size:12px;color:var(--cp-text-muted);margin-bottom:12px">
-        Kernel-mode callout drivers registered with the Windows Filtering Platform engine. Competing callouts at
-        <code>ALE_CONNECT_REDIRECT</code> / <code>ALE_AUTH_CONNECT</code> layers directly interfere with GSA traffic steering.
+        Kernel-mode callout drivers registered with the Windows Filtering Platform engine. Multiple callouts registered at
+        <code>ALE_CONNECT_REDIRECT</code> / <code>ALE_AUTH_CONNECT</code> layers can interfere with GSA traffic steering.
       </p>
       <div id="calloutTable"></div>
     </div>
     <div class="card">
       <div class="card-title">WFP Providers <span class="count-badge" id="providerBadge">0</span></div>
       <p style="font-size:12px;color:var(--cp-text-muted);margin-bottom:12px">
-        WFP providers group callouts and filters by vendor. Multiple providers competing at the same layers can cause
+        WFP providers group callouts and filters by product. Multiple providers registered at the same layers can cause
         filter weight conflicts that silently drop or misroute traffic.
       </p>
       <div id="providerTable"></div>
@@ -1148,7 +1148,7 @@ const vendorRemediation = {
   "Trellix":          "Disable the Trellix (McAfee Enterprise) 'Endpoint Security - Threat Prevention' network component or configure the DLP policy to exclude GlobalSecureAccessDriver from interception.",
   "OpenVPN":          "OpenVPN tunnel driver (TAP/DCO) and GSA can coexist in many scenarios, but may conflict if OpenVPN routes overlap with GSA-tunneled traffic. Configure OpenVPN split-tunneling to exclude Entra ID and M365 prefixes, or disconnect OpenVPN before establishing GSA tunnels.",
   "WireGuard":        "WireGuard's Wintun driver may conflict with GSA on machines where both tunnel traffic simultaneously. Configure WireGuard to use split-tunneling, excluding Microsoft Entra ID and M365 IP ranges from the WireGuard tunnel.",
-  "Cloudflare One":   "Cloudflare One Client (WARP) and GSA Client are both Zero Trust Network Access agents — they cannot safely run simultaneously. Disable Cloudflare WARP on devices enrolled in GSA, or configure WARP split-tunneling to exclude all Microsoft 365, Entra ID, and Private Access traffic. Do NOT run two ZTNA agents concurrently.",
+  "Cloudflare One":   "Cloudflare One Client (WARP) intercepts network traffic at the same WFP layers as GSA Client. Running both simultaneously can cause tunnel failures and traffic routing issues. Configure WARP split-tunneling to exclude Microsoft 365, Entra ID, and Private Access destinations, or disable WARP on devices where GSA is the active network access client.",
 };
 const recoList = document.getElementById("recoList");
 const recos = [];
