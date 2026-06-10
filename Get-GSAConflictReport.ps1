@@ -105,6 +105,8 @@ param(
     [switch]$NoBrowser
 )
 
+$script:Version = '1.1.0'
+
 # ─── Known conflicting vendors ───────────────────────────────────────────────
 $KnownVendors = @(
     @{ Name="Forcepoint";      Risk="High";   Drivers=@("fpwfp","fpdodriver","fpepflt","fp_wfp");           Services=@("fpcsvc","FPWFPDriver","ForcePoint");       Desc="Forcepoint Web Security / DLP uses WFP callouts at the same ALE layers as GSA, causing packet redirect conflicts." }
@@ -127,6 +129,10 @@ $KnownVendors = @(
 )
 
 # ─── Collect system data ──────────────────────────────────────────────────────
+Write-Host ""
+Write-Host "  GSA SxS Checker v$($script:Version)" -ForegroundColor Cyan
+Write-Host "  https://github.com/jeevanbisht/GSASxSChecker"
+Write-Host ""
 $IsAdmin       = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 $ReportTime    = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 $ReportTimeUtc = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd HH:mm:ss") + " UTC"
@@ -482,6 +488,7 @@ $jsonMeta = ConvertTo-SafeJsonObject @{
     gsaDriverStatus  = $GsaDriverStatus
     gsaHealth        = $GsaHealth
     gsaStatus        = if ($GsaInstalled) { "v$GsaVersion - $GsaHealth" } else { "Not detected" }
+    toolVersion      = $script:Version
 }
 
 # ─── HTML Template ────────────────────────────────────────────────────────────
@@ -954,7 +961,8 @@ document.getElementById("statProviders").textContent = META.wfpProviderCount || 
 document.getElementById("metaBlock").innerHTML =
   `<div style="font-weight:600">${esc(META.machine)}</div>` +
   `<div>${esc(META.userFull || META.user)}</div>` +
-  `<div>${esc(META.reportTime)}</div>`;
+  `<div>${esc(META.reportTime)}</div>` +
+  `<div style="color:var(--cp-text-soft);font-size:11px">GSA SxS Checker v${esc(META.toolVersion)}</div>`;
 
 if (!META.isAdmin) document.getElementById("adminWarn").style.display = "flex";
 if (!META.isAdmin) document.getElementById("wfpAdminNote").style.display = "block";

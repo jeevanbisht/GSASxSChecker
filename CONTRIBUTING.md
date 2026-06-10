@@ -55,7 +55,8 @@ GSASxSChecker/
 ├── Get-GSAConflictReport.ps1   # Main PowerShell detection script
 ├── GSA-Conflict-Report.html    # Sample report (anonymized demo data)
 ├── docs/
-│   └── user-guide.html         # End-user experience guide
+│   ├── user-guide.html         # End-user experience guide
+│   └── add-vendor.md           # Step-by-step vendor onboarding guide (canonical reference)
 ├── README.md
 ├── CONTRIBUTING.md             # This file
 ├── CHANGELOG.md
@@ -68,42 +69,55 @@ The script is intentionally **single-file** to make it easy to share, run on rem
 
 ## Adding a New Vendor Signature
 
-Vendor signatures live at the **top of `Get-GSAConflictReport.ps1`** in the `$KnownConflicts` array. Each entry is a hashtable with the following keys:
+> **Full step-by-step guide:** [`docs/add-vendor.md`](docs/add-vendor.md) — follow that document for detailed instructions and field reference. This section is a quick summary.
+
+Adding a vendor touches **two places** in `Get-GSAConflictReport.ps1` plus several documentation files:
+
+### Step 1 — `$KnownVendors` (detection logic)
+
+Array at the top of the script (~line 109). Add a new hashtable **before the closing `)`**:
 
 ```powershell
-@{
-    Vendor      = "Vendor Display Name"    # e.g. "Forcepoint"
-    Risk        = "High"                   # High | Medium | Low
-    Keywords    = @("svcname1","drv*.sys") # wildcards supported; matched against service names and driver filenames
-    Description = "One sentence explaining the conflict mechanism and its impact on GSA."
-    Action      = "Vendor-specific remediation step for IT administrators."
-}
+@{ Name="VendorName"; Risk="High"; Drivers=@("driver1","driver2"); Services=@("SvcName1","SvcName2"); Desc="One-sentence WFP conflict description." }
 ```
 
-### Example
+| Field | Notes |
+|---|---|
+| `Name` | Display name — must exactly match the key in `vendorRemediation` (Step 2) |
+| `Risk` | `"High"` / `"Medium"` / `"Low"` |
+| `Drivers` | Kernel driver SCM names (matched via `Win32_SystemDriver`). Use `"*pattern*"` wildcards. |
+| `Services` | User-mode service names (matched via `Get-Service`). Required when no kernel driver. |
+| `Desc` | Shown in the Findings tab. WFP layer impact and user-visible symptoms. |
 
-```powershell
-@{
-    Vendor      = "ExampleGuard"
-    Risk        = "Medium"
-    Keywords    = @("exguard", "eg_wfp", "egdrv*.sys")
-    Description = "ExampleGuard registers WFP callouts at ALE connect-redirect layers, competing with the GSA tunnel driver for traffic ownership."
-    Action      = "Disable ExampleGuard's network inspection component or add a GSA exclusion policy via the ExampleGuard management console."
-}
+### Step 2 — `vendorRemediation` (Remediation tab)
+
+JavaScript object inside the HTML template (~line 1138). Add a key matching `Name` from Step 1:
+
+```javascript
+"VendorName": "Actionable remediation guidance for the customer.",
 ```
 
-### Keyword Matching Rules
+### Step 3 — Update documentation
 
-- Keywords are matched against **service name** (`Win32_SystemDriver.Name`) and **driver filename** (`Win32_SystemDriver.PathName`).
-- Wildcards (`*`, `?`) are supported — the script uses PowerShell's `-like` operator.
-- Add the most specific patterns first; broad patterns can cause false positives.
+| File | What to update |
+|---|---|
+| `Get-GSAConflictReport.ps1` | `.DESCRIPTION` header — add vendor to the name list |
+| `README.md` | Vendor count in features table + detection pipeline description |
+| `CHANGELOG.md` | Entry under `[Unreleased]` or new version block |
+| `docs/user-guide.html` | Vendor chip in the "Detected Vendor Products" section + version badge if releasing |
+
+### Keyword matching rules
+
+- `Drivers` entries are matched against `Win32_SystemDriver.Name` (SCM service name, not filename — no `.sys` extension).
+- `Services` entries are matched against `Get-Service` `Name` and `DisplayName`.
+- Wildcards (`*`) use PowerShell `-like`. Keep patterns specific to avoid false positives.
 - All matches are **case-insensitive**.
 
 ### Verifying Your Addition
 
-1. Add the entry to `$KnownConflicts`.
+1. Add the entry to `$KnownVendors` and the remediation key to `vendorRemediation`.
 2. Run `.\Get-GSAConflictReport.ps1` on a machine where that product is installed.
-3. Confirm it appears in the **Findings** tab with the correct risk level.
+3. Confirm it appears in the **Findings** tab with the correct risk level and remediation text.
 4. Run on a clean machine to confirm no false positives.
 
 ---

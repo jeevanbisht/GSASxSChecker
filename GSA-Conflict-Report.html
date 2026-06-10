@@ -239,9 +239,9 @@ details[open] summary { color: var(--cp-accent); }
       <p style="font-size:13px;color:var(--cp-text-soft);line-height:1.7">
         This report scans for kernel-mode WFP (Windows Filtering Platform) callout drivers and services
         that are known to conflict with the <strong>Microsoft Global Secure Access (GSA) client</strong>.
-        GSA uses a WFP callout driver to intercept and tunnel traffic. When another product registers
-        competing callouts at the same network layers, traffic can be silently dropped, tunnels fail to
-        establish, or the machine may become unstable.
+        GSA uses a WFP callout driver to intercept and tunnel traffic. When another product also registers
+        WFP callouts at the same network layers, traffic can be silently dropped, tunnels may fail to
+        establish, or connectivity to protected resources may be degraded.
       </p>
     </div>
 
@@ -267,12 +267,25 @@ details[open] summary { color: var(--cp-accent); }
 
   <!-- TAB: WFP Details -->
   <div class="tab-panel" id="tab-wfp">
+    <div id="wfpAdminNote" style="display:none;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.3);border-radius:0.625rem;padding:12px 16px;margin-bottom:16px;font-size:13px">
+      ⚠️ <strong>Administrator elevation required</strong> — WFP callout and provider data is only available when the script
+      is run as Administrator (<code>netsh wfp show state</code>). Re-run with elevated privileges to see all registered
+      WFP callout drivers and providers, including those from detected conflicting products.
+    </div>
     <div class="card">
       <div class="card-title">WFP Callout Drivers <span class="count-badge" id="calloutBadge">0</span></div>
+      <p style="font-size:12px;color:var(--cp-text-muted);margin-bottom:12px">
+        Kernel-mode callout drivers registered with the Windows Filtering Platform engine. Multiple callouts registered at
+        <code>ALE_CONNECT_REDIRECT</code> / <code>ALE_AUTH_CONNECT</code> layers can interfere with GSA traffic steering.
+      </p>
       <div id="calloutTable"></div>
     </div>
     <div class="card">
       <div class="card-title">WFP Providers <span class="count-badge" id="providerBadge">0</span></div>
+      <p style="font-size:12px;color:var(--cp-text-muted);margin-bottom:12px">
+        WFP providers group callouts and filters by product. Multiple providers registered at the same layers can cause
+        filter weight conflicts that silently drop or misroute traffic.
+      </p>
       <div id="providerTable"></div>
     </div>
   </div>
@@ -377,12 +390,12 @@ Get-WmiObject Win32_SystemDriver | Where-Object { $_.State -eq 'Running' } | For
 
 <script>
 // ─── Embedded data ────────────────────────────────────────────────────────────
-const META        = {"gsaInstallDate":"N/A","joinType":"Entra ID Joined (Cloud-only)","diskSystem":"715.4 GB free of 1862.1 GB (C:)","model":"System Product Name","reportTime":"2026-06-09 17:30:38","overallRisk":"Medium","gsaVersion":"","manufacturer":"ASUS","findingCount":2,"psVersion":"5.1.26100.8457","osDisplayVersion":"25H2","entraPrtStatus":"NO","osInstallDate":"2024-12-16","cpu":"13th Gen Intel(R) Core(TM) i9-13900K","osUptime":"0d 0h 47m","wfpCalloutCount":0,"entraTenantId":"3e79a835-c12c-4214-ac9f-e24ae48ca24f","entraTenantName":"CATTEAM","osLastBoot":"2026-06-09 16:43:28","machine":"DEEPCOOL1","gsaStatus":"Not detected","systemType":"x64","user":"G1Admin","os":"Microsoft Windows 11 Pro","cpuCores":"24 cores / 32 threads","osEdition":"Professional","gsaInstalled":false,"userFull":"DEEPCOOL1\\G1Admin","wfpProviderCount":0,"ramGB":"127.7 GB","osVersion":"10.0.26200","dotNetVersion":"4.8.1+","ilowfpDetected":false,"domainRole":"Standalone Workstation","osBuild":"26200.8457","gsaPublisher":"","isAdmin":true,"gsaProductCode":"","gsaFileVersion":"","gsaHealth":"Not Installed","gsaDriverStatus":"Not Found","gsaInstallPath":"Not found","reportTimeUtc":"2026-06-10 00:30:38 UTC","domain":"WORKGROUP"};
-const FINDINGS    = [{"Vendor":"OpenVPN","Risk":"Medium","Description":"OpenVPN tunnel driver (TAP/DCO) uses WFP and may conflict with GSA traffic steering at the redirect layer.","MatchedDrivers":"ovpn-dco, tap_ovpnconnect, tap_ovpnconnect","MatchedServices":"OpenVPN Connect Helper Service, OpenVPN Connect Helper Service","MatchedWfp":""},{"Vendor":"WireGuard","Risk":"Medium","Description":"WireGuard Wintun kernel driver registers WFP callouts for tunnel traffic that can conflict with GSA network interception.","MatchedDrivers":"wintun","MatchedServices":"","MatchedWfp":""}];
+const META        = {"gsaInstallDate":"N/A","joinType":"Entra ID Joined (Cloud-only)","diskSystem":"714.9 GB free of 1862.1 GB (C:)","model":"System Product Name","reportTime":"2026-06-09 18:14:33","overallRisk":"High","gsaVersion":"","manufacturer":"ASUS","findingCount":5,"psVersion":"5.1.26100.8457","osDisplayVersion":"25H2","entraPrtStatus":"NO","osInstallDate":"2024-12-16","cpu":"13th Gen Intel(R) Core(TM) i9-13900K","osUptime":"0d 1h 31m","wfpCalloutCount":0,"entraTenantId":"3e79a835-c12c-4214-ac9f-e24ae48ca24f","entraTenantName":"CATTEAM","osLastBoot":"2026-06-09 16:43:28","machine":"DEEPCOOL1","gsaStatus":"Not detected","systemType":"x64","user":"G1Admin","os":"Microsoft Windows 11 Pro","cpuCores":"24 cores / 32 threads","osEdition":"Professional","gsaInstalled":false,"userFull":"DEEPCOOL1\\G1Admin","wfpProviderCount":0,"ramGB":"127.7 GB","osVersion":"10.0.26200","dotNetVersion":"4.8.1+","ilowfpDetected":false,"domainRole":"Standalone Workstation","osBuild":"26200.8457","gsaPublisher":"","isAdmin":true,"gsaProductCode":"","gsaFileVersion":"","gsaHealth":"Not Installed","gsaDriverStatus":"Not Found","gsaInstallPath":"Not found","reportTimeUtc":"2026-06-10 01:14:33 UTC","domain":"WORKGROUP"};
+const FINDINGS    = [{"Vendor":"OpenVPN","Risk":"Medium","Description":"OpenVPN tunnel driver (TAP/DCO) uses WFP and may conflict with GSA traffic steering at the redirect layer.","MatchedDrivers":"ovpn-dco, tap_ovpnconnect, tap_ovpnconnect","MatchedServices":"OpenVPN Connect Helper Service, OpenVPN Connect Helper Service","MatchedWfp":""},{"Vendor":"WireGuard","Risk":"Medium","Description":"WireGuard Wintun kernel driver registers WFP callouts for tunnel traffic that can conflict with GSA network interception.","MatchedDrivers":"wintun","MatchedServices":"","MatchedWfp":""},{"Vendor":"Tailscale","Risk":"Medium","Description":"Tailscale uses the Wintun kernel driver and registers WFP callouts for its mesh VPN tunnel. Running alongside GSA may cause traffic routing conflicts depending on which destinations each product is configured to handle.","MatchedDrivers":"wintun","MatchedServices":"Tailscale","MatchedWfp":""},{"Vendor":"NetLimiter","Risk":"Medium","Description":"NetLimiter installs a kernel-mode WFP driver (nldrv.sys) to shape and monitor network traffic per application. Its WFP callouts may interfere with GSA tunnel traffic classification and steering.","MatchedDrivers":"nldrv","MatchedServices":"NetLimiter Service, NetLimiter Service, NetLimiter Service","MatchedWfp":""},{"Vendor":"Cloudflare One","Risk":"High","Description":"Cloudflare One Client (WARP) intercepts and tunnels network traffic at the same WFP layers as GSA. Running both agents simultaneously can cause traffic steering conflicts, tunnel failures, and degraded user experience.","MatchedDrivers":"","MatchedServices":"Cloudflare One Client, Cloudflare One Client, Warp JIT Service","MatchedWfp":""}];
 const CALLOUTS    = [];
 const PROVIDERS   = [];
-const DRIVERS     = [{"Name":"Asusgio2","DisplayName":"Asusgio2","Signer":"Unknown","Path":"\\??\\C:\\Windows\\system32\\drivers\\AsIO2.sys"},{"Name":"Asusgio3","DisplayName":"Asusgio3","Signer":"Unknown","Path":"\\??\\C:\\Windows\\system32\\drivers\\AsIO3.sys"},{"Name":"cpuz160","DisplayName":"cpuz160","Signer":"Unknown","Path":"\\??\\C:\\ProgramData\\CPUID Software\\sdk\\5fbRNZtgs"},{"Name":"CTIAIO","DisplayName":"CTIAIO","Signer":"Unknown","Path":"\\??\\C:\\Windows\\system32\\drivers\\CtiAIo64.sys"},{"Name":"MSIO","DisplayName":"MSIO","Signer":"Unknown","Path":"\\??\\C:\\Windows\\system32\\drivers\\MsIo64.sys"},{"Name":"vgk","DisplayName":"vgk","Signer":"Unknown","Path":"\\??\\C:\\Program Files\\Riot Vanguard\\vgk.sys"}];
-const NET_ADAPTERS= [{"Description":"Hyper-V Virtual Ethernet Adapter #2","IPAddress":"169.254.211.86","MACAddress":"00:15:5D:00:68:98","DHCPEnabled":"Yes","DefaultGW":"","DNSServers":""},{"Description":"Hyper-V Virtual Ethernet Adapter #4","IPAddress":"169.254.85.78","MACAddress":"00:15:5D:00:68:9E","DHCPEnabled":"Yes","DefaultGW":"","DNSServers":""},{"Description":"Hyper-V Virtual Ethernet Adapter #5","IPAddress":"169.254.166.53","MACAddress":"00:15:5D:00:68:9F","DHCPEnabled":"Yes","DefaultGW":"","DNSServers":""},{"Description":"Hyper-V Virtual Ethernet Adapter #6","IPAddress":"192.168.1.215","MACAddress":"58:11:22:D8:B5:57","DHCPEnabled":"Yes","DefaultGW":"192.168.1.1","DNSServers":"192.168.1.1"},{"Description":"VMware Virtual Ethernet Adapter for VMnet0","IPAddress":"192.168.44.1","MACAddress":"00:50:56:C0:00:00","DHCPEnabled":"No","DefaultGW":"","DNSServers":""},{"Description":"Tailscale Tunnel","IPAddress":"169.254.83.107","MACAddress":null,"DHCPEnabled":"No","DefaultGW":"","DNSServers":""}];
+const DRIVERS     = [{"Name":"Asusgio2","DisplayName":"Asusgio2","Signer":"Unknown","Path":"\\??\\C:\\Windows\\system32\\drivers\\AsIO2.sys"},{"Name":"Asusgio3","DisplayName":"Asusgio3","Signer":"Unknown","Path":"\\??\\C:\\Windows\\system32\\drivers\\AsIO3.sys"},{"Name":"cpuz160","DisplayName":"cpuz160","Signer":"Unknown","Path":"\\??\\C:\\ProgramData\\CPUID Software\\sdk\\5fbRNZtgs"},{"Name":"CTIAIO","DisplayName":"CTIAIO","Signer":"Unknown","Path":"\\??\\C:\\Windows\\system32\\drivers\\CtiAIo64.sys"},{"Name":"MSIO","DisplayName":"MSIO","Signer":"Unknown","Path":"\\??\\C:\\Windows\\system32\\drivers\\MsIo64.sys"},{"Name":"vgk","DisplayName":"vgk","Signer":"Unknown","Path":"\\??\\C:\\Program Files\\Riot Vanguard\\vgk.sys"},{"Name":"nldrv","DisplayName":"nldrv","Signer":"Locktime Software s.r.o.","Path":"C:\\WINDOWS\\system32\\drivers\\nldrv.sys"}];
+const NET_ADAPTERS= [{"Description":"Hyper-V Virtual Ethernet Adapter #2","IPAddress":"169.254.211.86","MACAddress":"00:15:5D:00:68:98","DHCPEnabled":"Yes","DefaultGW":"","DNSServers":""},{"Description":"Hyper-V Virtual Ethernet Adapter #4","IPAddress":"169.254.85.78","MACAddress":"00:15:5D:00:68:9E","DHCPEnabled":"Yes","DefaultGW":"","DNSServers":""},{"Description":"Hyper-V Virtual Ethernet Adapter #5","IPAddress":"169.254.166.53","MACAddress":"00:15:5D:00:68:9F","DHCPEnabled":"Yes","DefaultGW":"","DNSServers":""},{"Description":"Hyper-V Virtual Ethernet Adapter #6","IPAddress":"192.168.1.215","MACAddress":"58:11:22:D8:B5:57","DHCPEnabled":"Yes","DefaultGW":"192.168.1.1","DNSServers":"127.0.2.2, 127.0.2.3"},{"Description":"VMware Virtual Ethernet Adapter for VMnet0","IPAddress":"192.168.44.1","MACAddress":"00:50:56:C0:00:00","DHCPEnabled":"No","DefaultGW":"","DNSServers":""},{"Description":"Tailscale Tunnel","IPAddress":"169.254.83.107","MACAddress":null,"DHCPEnabled":"No","DefaultGW":"","DNSServers":""},{"Description":"Cloudflare WARP Interface Tunnel","IPAddress":"172.16.0.2","MACAddress":null,"DHCPEnabled":"No","DefaultGW":"","DNSServers":"127.0.2.2, 127.0.2.3"}];
 const GSA_SERVICES= [{"Name":"GlobalSecureAccessClientManagerService","DisplayName":"GlobalSecureAccessClientManagerService","Status":"Not Found","StartType":"N/A"},{"Name":"GlobalSecureAccessEngineService","DisplayName":"GlobalSecureAccessEngineService","Status":"Not Found","StartType":"N/A"},{"Name":"GlobalSecureAccessForwardingProfileService","DisplayName":"GlobalSecureAccessForwardingProfileService","Status":"Not Found","StartType":"N/A"},{"Name":"GlobalSecureAccessTunnelingService","DisplayName":"GlobalSecureAccessTunnelingService","Status":"Not Found","StartType":"N/A"}];
 const GSA_CHANNELS= [{"Channel":"N/A","Status":"Event log unavailable","LastSeen":"N/A","EventId":""}];
 
@@ -456,6 +469,7 @@ document.getElementById("metaBlock").innerHTML =
   `<div>${esc(META.reportTime)}</div>`;
 
 if (!META.isAdmin) document.getElementById("adminWarn").style.display = "flex";
+if (!META.isAdmin) document.getElementById("wfpAdminNote").style.display = "block";
 if (META.ilowfpDetected) document.getElementById("ilowfpAlert").style.display = "block";
 
 // ─── Summary tab ──────────────────────────────────────────────────────────────
@@ -633,6 +647,25 @@ document.getElementById("netTable").innerHTML = makeTable(
 );
 
 // ─── Remediation tab ──────────────────────────────────────────────────────────
+const vendorRemediation = {
+  "Forcepoint":       "Disable Forcepoint Web Security network proxy / SSL inspection on devices running GSA, or configure Forcepoint to exclude Microsoft Entra and M365 traffic from its WFP redirect callout.",
+  "Check Point":      "In Check Point Endpoint Security, disable the 'Full Disk Encryption' network component or configure a firewall exclusion rule to allow GSA tunnel traffic without interception.",
+  "Skyhigh/McAfee":   "In McAfee/Trellix/Skyhigh console, disable the 'Web Gateway' or 'Client Proxy' component, or add the GSA service account and driver to the exclusion list.",
+  "Zscaler":          "Zscaler Client Connector and GSA cannot run simultaneously on the same device. Disable Zscaler ZIA/ZPA on devices deployed with GSA, or coordinate with Zscaler for a coexistence policy.",
+  "Netskope":         "Configure Netskope steering exceptions to bypass Microsoft Entra ID, M365, and Private Access traffic. Contact Netskope support for a GSA coexistence configuration guide.",
+  "Symantec/Broadcom":"Disable Symantec Endpoint Protection's 'Network Threat Protection' module or add the GlobalSecureAccessDriver to the excluded drivers list in SEP policy.",
+  "CrowdStrike":      "CrowdStrike Falcon generally coexists with GSA. If issues arise, verify that Falcon sensor network telemetry is not set to block/redirect mode. Contact CrowdStrike for a GSA exclusion policy.",
+  "SentinelOne":      "In SentinelOne console, add GlobalSecureAccessDriver and its associated binaries to the exclusion list. Enable 'Interoperability mode' if available for your agent version.",
+  "Palo Alto Prisma":  "GlobalProtect VPN and GSA Client cannot run on the same device simultaneously. Disable GlobalProtect or Prisma Access on GSA-managed devices, or use split-tunneling in GlobalProtect to exclude Entra/M365 destinations.",
+  "Cisco AnyConnect": "Configure Cisco AnyConnect split-tunneling to exclude Microsoft 365, Entra ID, and GSA tunnel endpoints. Alternatively, disable AnyConnect on devices using GSA for private access.",
+  "iboss":            "Configure iboss cloud connector to exclude GSA-tunneled traffic from its WFP redirect policy, or disable iboss on devices where GSA handles secure web gateway functionality.",
+  "Trellix":          "Disable the Trellix (McAfee Enterprise) 'Endpoint Security - Threat Prevention' network component or configure the DLP policy to exclude GlobalSecureAccessDriver from interception.",
+  "OpenVPN":          "OpenVPN tunnel driver (TAP/DCO) and GSA can coexist in many scenarios, but may conflict if OpenVPN routes overlap with GSA-tunneled traffic. Configure OpenVPN split-tunneling to exclude Entra ID and M365 prefixes, or disconnect OpenVPN before establishing GSA tunnels.",
+  "WireGuard":        "WireGuard's Wintun driver may conflict with GSA on machines where both tunnel traffic simultaneously. Configure WireGuard to use split-tunneling, excluding Microsoft Entra ID and M365 IP ranges from the WireGuard tunnel.",
+  "Tailscale":        "Tailscale uses the Wintun kernel driver for its mesh VPN tunnel, which operates at the same WFP layers as GSA. If you experience connectivity issues, configure Tailscale's split-tunneling to exclude Microsoft 365, Entra ID, and Private Access destinations, or pause the Tailscale connection while GSA tunnels are active.",
+  "NetLimiter":       "NetLimiter's kernel-mode WFP driver (nldrv.sys) classifies and shapes traffic per application. This can interfere with how GSA steers traffic into its tunnel. If GSA tunnel connectivity is degraded, try temporarily disabling NetLimiter rules that apply to the GlobalSecureAccess processes, or add an exclusion rule for GlobalSecureAccessDriver and its associated services.",
+  "Cloudflare One":   "Cloudflare One Client (WARP) intercepts network traffic at the same WFP layers as GSA Client. Running both simultaneously can cause tunnel failures and traffic routing issues. Configure WARP split-tunneling to exclude Microsoft 365, Entra ID, and Private Access destinations, or disable WARP on devices where GSA is the active network access client.",
+};
 const recoList = document.getElementById("recoList");
 const recos = [];
 if (FINDINGS.length === 0) {
@@ -641,11 +674,14 @@ if (FINDINGS.length === 0) {
 } else {
   FINDINGS.forEach(f => {
     const severity = f.Risk.toLowerCase();
-    recos.push({ icon: severity === "high" ? "action" : "info",
-      text: `<strong>${esc(f.Vendor)}</strong> (${esc(f.Risk)} Risk): Coordinate with your ${esc(f.Vendor)} admin to configure exclusions or disable overlapping WFP modules. Affected: <code>${esc(f.MatchedDrivers||f.MatchedServices||"n/a")}</code>` });
+    const specific = vendorRemediation[f.Vendor];
+    const affectedStr = esc(f.MatchedDrivers || f.MatchedServices || "n/a");
+    const text = `<strong>${esc(f.Vendor)}</strong> (${esc(f.Risk)} Risk) — Affected: <code>${affectedStr}</code><br>` +
+      `<span style="color:var(--cp-text-soft)">${specific ? specific : "Coordinate with your " + esc(f.Vendor) + " admin to configure exclusions or disable overlapping WFP modules."}</span>`;
+    recos.push({ icon: severity === "high" ? "action" : "info", text });
   });
   if (!META.isAdmin) {
-    recos.push({ icon:"action", text:"Re-run this script as <strong>Administrator</strong> for a complete WFP callout scan - current results may be incomplete." });
+    recos.push({ icon:"action", text:"Re-run this script as <strong>Administrator</strong> for a complete WFP callout scan — current results may be incomplete." });
   }
 }
 recoList.innerHTML = recos.map(r =>
