@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.0] — 2026-06-11
+
+### Added
+
+- **Cato Networks** vendor signature (Risk: High) — detects `cato`, `catovpn`, `catotunnel`, `catowfp` kernel drivers and `CatoClient`, `CatoNetworks`, `CatoVPN` services
+- Vendor count bumped to 50
+
+---
+
 ## [1.0.0] — 2026-01-15
 
 ### Added

@@ -15,7 +15,7 @@
     Barracuda VPN, WatchGuard Mobile VPN, Array Networks VPN, Aruba VIA,
     Digital Guardian, Proofpoint Endpoint DLP, CoSoSys Endpoint Protector,
     ManageEngine DataSecurity Plus, Menlo Security, Ericom Shield,
-    ZeroTier, NetBird, Headscale, and more)
+    ZeroTier, NetBird, Headscale, Cato Networks, and more)
     that are known to conflict with the Microsoft Global Secure Access (GSA) client.
 
     The GSA client uses a WFP callout driver (GlobalSecureAccessDriver) to intercept
@@ -75,7 +75,7 @@
     Path to the generated HTML file is written to the host.
 
 .NOTES
-    Version      : 1.4.3
+    Version      : 1.5.0
     Author       : Jeevan Bisht
     Project      : https://github.com/jeevanbisht/GSASxSChecker
     License      : MIT
@@ -113,7 +113,7 @@ param(
     [switch]$NoBrowser
 )
 
-$script:Version = '1.4.3'
+$script:Version = '1.5.0'
 
 # ─── Known conflicting vendors ───────────────────────────────────────────────
 $KnownVendors = @(
@@ -208,6 +208,9 @@ $KnownVendors = @(
     @{ Name="ZeroTier";                Risk="Medium"; Drivers=@("zerotier","ztvirtual");             Services=@("ZeroTierOne");                                         Desc="Overlay network with virtual adapters and route injection that may conflict with GSA traffic redirection." }
     @{ Name="NetBird";                 Risk="Medium"; Drivers=@("netbird","wintun");                 Services=@("NetBird","NetBirdService");                            Desc="WireGuard-based enterprise mesh networking using Wintun that may create route conflicts with GSA." }
     @{ Name="Headscale";               Risk="Low";    Drivers=@("wintun");                           Services=@("Headscale");                                           Desc="Tailscale-compatible deployments using Wintun adapters; generally low risk but should be inventoried." }
+
+    # ─── SASE / SD-WAN ────────────────────────────────────────────────────────────
+    @{ Name="Cato Networks";           Risk="High";   Drivers=@("cato","catovpn","catotunnel","catowfp"); Services=@("CatoClient","CatoNetworks","CatoVPN"); Desc="Cato SASE client performs traffic steering, DNS interception, ZTNA, SWG, and VPN functions that may overlap with Microsoft Global Secure Access routing and policy enforcement." }
 
 )
 
@@ -1276,6 +1279,7 @@ const vendorRemediation = {
   "ZeroTier": "ZeroTier injects virtual network adapters and custom routes that may conflict with GSA traffic redirection. Configure ZeroTier network rules to exclude Microsoft 365, Entra ID, and Private Access prefixes, or leave those routes to be handled exclusively by GSA.",
   "NetBird": "NetBird uses the Wintun kernel driver for its mesh VPN tunnel, which operates at the same WFP layers as GSA. Configure NetBird split-tunnel routes to exclude Microsoft 365, Entra ID, and GSA-tunneled destinations.",
   "Headscale": "Headscale-based Tailscale deployments use the Wintun adapter and are generally low risk. If GSA connectivity issues arise, verify that Wintun driver registration does not conflict with GSA and configure split-tunnel to exclude GSA-managed destinations.",
+  "Cato Networks": "Cato SASE client owns the full network stack (DNS, SWG, ZTNA, VPN). In the Cato Management Application, configure split-tunnel or bypass rules to exclude Microsoft 365, Entra ID, and GSA-tunneled destinations. On devices where GSA handles secure access, disable the Cato Client or set it to monitor-only mode.",
 };
 const recoList = document.getElementById("recoList");
 const recos = [];
