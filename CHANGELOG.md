@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.0] — 2026-06-11
+
+### Added
+
+- **VMware Workspace ONE Tunnel** (Risk: High) — enterprise per-app VPN and secure access
+- **BeyondTrust Secure Remote Access** (Risk: Medium) — Bomgar-based remote access networking
+- **NordVPN** (Risk: Medium) — NordLynx/WireGuard consumer VPN
+- **ExpressVPN** (Risk: Medium) — consumer VPN with DNS/route ownership
+- **Surfshark** (Risk: Medium) — WireGuard-based consumer VPN
+- **Private Internet Access** (Risk: Medium) — WireGuard/OpenVPN consumer VPN
+- **Proton VPN** (Risk: Medium) — WireGuard-based VPN with DNS interception
+- **Mullvad VPN** (Risk: Medium) — WireGuard-based privacy VPN
+- **Cita VPN** (Risk: Medium) — consumer VPN with tunnel route ownership
+- Vendor count bumped to 59
+
+---
+
 ## [1.5.0] — 2026-06-11
 
 ### Added
