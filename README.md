@@ -1,4 +1,4 @@
-﻿# GSA SxS Checker
+﻿# GSA SxS Checker — Detect Global Secure Access (GSA) Client Conflicts
 
 [![PowerShell 5.1+](https://img.shields.io/badge/PowerShell-5.1%2B-blue?logo=powershell)](https://docs.microsoft.com/en-us/powershell/)
 [![Windows](https://img.shields.io/badge/Platform-Windows%2010%2F11-blue?logo=windows)](https://www.microsoft.com/windows)
@@ -40,7 +40,7 @@ cd GSASxSChecker
 Or download just the script:
 
 ```powershell
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/jeevanbisht/GSASxSChecker/main/Get-GSAConflictReport.ps1" -OutFile "Get-GSAConflictReport.ps1"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/jeevanbisht/GSASxSChecker/master/Get-GSAConflictReport.ps1" -OutFile "Get-GSAConflictReport.ps1"
 ```
 
 ### 2. Run (as Administrator for full results)
