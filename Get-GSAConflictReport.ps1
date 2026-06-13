@@ -850,6 +850,11 @@ details[open] summary { color: var(--cp-accent); }
 
     <div class="card" id="summaryFindings">
       <div class="card-title">Detected Conflicts <span class="count-badge" id="summaryBadge">0</span></div>
+      <p style="font-size:12px;color:var(--cp-text-muted);line-height:1.6;margin:0 0 10px">
+        <strong>Note:</strong> A number of products may share the same underlying drivers (for example
+        <code>wintun</code>). The list below may therefore include all potential product names associated with
+        a detected driver, even if only one of them is actually installed on this machine.
+      </p>
       <div id="summaryList"></div>
     </div>
 
