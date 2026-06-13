@@ -48,6 +48,12 @@
 .PARAMETER NoBrowser
     Suppress automatically opening the report in the default browser after generation.
 
+.PARAMETER ShowAll
+    Include low-confidence matches in the Detected Conflicts table. By default the
+    table lists only high-confidence (confirmed) conflicts where a vendor service
+    name actually matched on this machine (Match = Yes). Use -ShowAll to also show
+    low-confidence matches (Match = No) that were detected by driver name only.
+
 .EXAMPLE
     # Basic usage — generates report in current directory
     .\Get-GSAConflictReport.ps1
@@ -112,10 +118,12 @@
 param(
     [string]$OutputPath = ".\GSA-Conflict-Report.html",
 
-    [switch]$NoBrowser
+    [switch]$NoBrowser,
+
+    [switch]$ShowAll
 )
 
-$script:Version = '1.6.0'
+$script:Version = '1.7.0'
 
 # ─── Known conflicting vendors ───────────────────────────────────────────────
 $KnownVendors = @(
@@ -592,6 +600,7 @@ $jsonMeta = ConvertTo-SafeJsonObject @{
     gsaHealth        = $GsaHealth
     gsaStatus        = if ($GsaInstalled) { "v$GsaVersion - $GsaHealth" } else { "Not detected" }
     toolVersion      = $script:Version
+    showAll          = [bool]$ShowAll
 }
 
 # ─── HTML Template ────────────────────────────────────────────────────────────
@@ -1105,7 +1114,11 @@ const machineRows = [
 document.getElementById("machineTable").innerHTML = kvTable(machineRows);
 
 const summaryList = document.getElementById("summaryList");
-if (FINDINGS.length === 0) {
+// By default only high-confidence (confirmed) matches are shown.
+// -ShowAll includes low-confidence (driver-only) matches too.
+const SUMMARY_ROWS = META.showAll ? FINDINGS.slice() : CONFIRMED.slice();
+const hiddenCount = FINDINGS.length - CONFIRMED.length;
+if (SUMMARY_ROWS.length === 0) {
   summaryList.innerHTML = `<div class="empty"><div class="empty-icon">-</div>No known conflicting products detected.</div>`;
 } else {
   summaryList.innerHTML =
@@ -1120,7 +1133,7 @@ if (FINDINGS.length === 0) {
          </tr>
        </thead>
        <tbody>` +
-    FINDINGS.slice().sort((a, b) => {
+    SUMMARY_ROWS.sort((a, b) => {
       const am = (a.MatchedServices && a.MatchedServices.trim() !== "") ? 0 : 1;
       const bm = (b.MatchedServices && b.MatchedServices.trim() !== "") ? 0 : 1;
       return am - bm;
@@ -1135,6 +1148,9 @@ if (FINDINGS.length === 0) {
       </tr>`;
     }).join("") +
     `</tbody></table>` +
+    (!META.showAll && hiddenCount > 0
+      ? `<div style="padding-top:10px;font-size:12px;color:var(--cp-text-muted)">${hiddenCount} low-confidence (driver-only) match${hiddenCount === 1 ? "" : "es"} hidden. Re-run with <span class="mono">-ShowAll</span> to include them.</div>`
+      : "") +
     `<div style="padding-top:10px;font-size:12px;color:var(--cp-text-muted)">Switch to the <strong>Findings</strong> tab for full details and the <strong>Remediation</strong> tab for next steps.</div>`;
 }
 
