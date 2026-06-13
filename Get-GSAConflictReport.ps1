@@ -1110,17 +1110,22 @@ if (FINDINGS.length === 0) {
          <tr>
            <th style="width:140px">PotentialConflict</th>
            <th>Driver Name</th>
+           <th>Services</th>
+           <th style="width:80px">Match</th>
            <th>Product</th>
          </tr>
        </thead>
        <tbody>` +
-    FINDINGS.map(f =>
-      `<tr>
+    FINDINGS.map(f => {
+      const svcMatch = (f.MatchedServices && f.MatchedServices.trim() !== "");
+      return `<tr>
         <td>${badgeHtml(f.Risk)}</td>
-        <td style="font-size:12px;color:var(--cp-text-soft)">${esc(f.MatchedDrivers||f.MatchedServices||"—")}</td>
+        <td style="font-size:12px;color:var(--cp-text-soft)">${esc(f.MatchedDrivers||"—")}</td>
+        <td style="font-size:12px;color:var(--cp-text-soft)">${esc(f.MatchedServices||"—")}</td>
+        <td><span class="badge ${svcMatch ? "badge-info" : ""}" style="font-weight:600">${svcMatch ? "Yes" : "No"}</span></td>
         <td><strong style="font-size:13px">${esc(f.Vendor)}</strong></td>
-      </tr>`
-    ).join("") +
+      </tr>`;
+    }).join("") +
     `</tbody></table>` +
     `<div style="padding-top:10px;font-size:12px;color:var(--cp-text-muted)">Switch to the <strong>Findings</strong> tab for full details and the <strong>Remediation</strong> tab for next steps.</div>`;
 }
