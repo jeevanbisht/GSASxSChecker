@@ -494,11 +494,14 @@ foreach ($vendor in $KnownVendors) {
     }
 }
 
-# Overall risk
+# Confirmed conflicts = a service name actually matched on this machine
+$ConfirmedFindings = @($Findings | Where-Object { $_.MatchedServices -and $_.MatchedServices.Trim() -ne "" })
+
+# Overall risk (based on confirmed conflicts only)
 $OverallRisk = "None"
-if ($Findings | Where-Object { $_.Risk -eq "High" }) { $OverallRisk = "High" }
-elseif ($Findings | Where-Object { $_.Risk -eq "Medium" }) { $OverallRisk = "Medium" }
-elseif ($Findings | Where-Object { $_.Risk -eq "Low" }) { $OverallRisk = "Low" }
+if ($ConfirmedFindings | Where-Object { $_.Risk -eq "High" }) { $OverallRisk = "High" }
+elseif ($ConfirmedFindings | Where-Object { $_.Risk -eq "Medium" }) { $OverallRisk = "Medium" }
+elseif ($ConfirmedFindings | Where-Object { $_.Risk -eq "Low" }) { $OverallRisk = "Low" }
 
 # Non-MS drivers (for engineering view)
 $NonMsDrivers = $AllDrivers | ForEach-Object {
@@ -543,7 +546,7 @@ $jsonMeta = ConvertTo-SafeJsonObject @{
     reportTimeUtc    = $ReportTimeUtc
     isAdmin          = $IsAdmin
     overallRisk      = $OverallRisk
-    findingCount     = $Findings.Count
+    findingCount     = $ConfirmedFindings.Count
     wfpCalloutCount  = $WfpCallouts.Count
     wfpProviderCount = $WfpProviders.Count
     ilowfpDetected   = ($null -ne $IlowfpRunning)
@@ -1383,9 +1386,9 @@ Write-Host ""
 if (!$IsAdmin) {
     Write-Host "  ⚠️  Run as Administrator for full WFP callout data." -ForegroundColor Yellow
 }
-if ($Findings.Count -gt 0) {
-    Write-Host "  - $($Findings.Count) conflicting product(s) detected:" -ForegroundColor Red
-    $Findings | ForEach-Object { Write-Host "     - $($_.Vendor) [$($_.Risk)]" -ForegroundColor Yellow }
+if ($ConfirmedFindings.Count -gt 0) {
+    Write-Host "  - $($ConfirmedFindings.Count) conflicting product(s) detected:" -ForegroundColor Red
+    $ConfirmedFindings | ForEach-Object { Write-Host "     - $($_.Vendor) [$($_.Risk)]" -ForegroundColor Yellow }
 } else {
     Write-Host "  ✅ No known conflicting products detected." -ForegroundColor Green
 }
