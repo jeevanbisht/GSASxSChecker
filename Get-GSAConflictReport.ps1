@@ -838,11 +838,13 @@ details[open] summary { color: var(--cp-accent); }
     <div class="card">
       <div class="card-title">What This Report Shows</div>
       <p style="font-size:13px;color:var(--cp-text-soft);line-height:1.7">
-        This report scans for kernel-mode WFP (Windows Filtering Platform) callout drivers and services
-        that are known to conflict with the <strong>Microsoft Global Secure Access (GSA) client</strong>.
-        GSA uses a WFP callout driver to intercept and tunnel traffic. When another product also registers
-        WFP callouts at the same network layers, traffic can be silently dropped, tunnels may fail to
-        establish, or connectivity to protected resources may be degraded.
+        This report detects potential conflicts with the
+        <a href="https://learn.microsoft.com/en-us/entra/global-secure-access/" target="_blank" rel="noopener"><strong>Microsoft Global Secure Access (GSA)</strong></a>
+        client by identifying coexisting network security products and their associated kernel-mode WFP
+        (Windows Filtering Platform) drivers that may interfere with traffic interception, redirection, or
+        filtering operations. GSA uses a WFP callout driver to intercept and tunnel traffic. When another
+        product registers WFP callouts at the same network layers, traffic can be silently dropped, tunnels
+        may fail to establish, or connectivity to protected resources may be degraded.
       </p>
     </div>
 
