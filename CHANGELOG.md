@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.0] — 2026-06-13
+
+### Added
+
+- **`-ShowAll` switch** — includes low-confidence (driver-only) matches in the Detected Conflicts and Findings views. By default only high-confidence (service-matched) conflicts are shown.
+
+### Changed
+
+- **Detected Conflicts now default to confirmed conflicts only** — the Summary table, Findings tab, count badge, overall risk banner, and console summary all count only conflicts where a vendor service name actually matched on the machine (Match = Yes). Low-confidence driver-only matches are hidden unless `-ShowAll` is passed, with a note indicating how many were hidden.
+- Console summary and `findingCount` now reflect confirmed conflicts only, consistent with the report.
+
+### Removed
+
+- **Private Internet Access** vendor signature removed; vendor count adjusted to 58.
+
+---
+
 ## [1.6.0] — 2026-06-11
 
 ### Added

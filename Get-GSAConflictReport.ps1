@@ -83,7 +83,7 @@
     Path to the generated HTML file is written to the host.
 
 .NOTES
-    Version      : 1.6.0
+    Version      : 1.7.0
     Author       : Jeevan Bisht
     Project      : https://github.com/jeevanbisht/GSASxSChecker
     License      : MIT
