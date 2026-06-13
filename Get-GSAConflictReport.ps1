@@ -1117,7 +1117,11 @@ if (FINDINGS.length === 0) {
          </tr>
        </thead>
        <tbody>` +
-    FINDINGS.map(f => {
+    FINDINGS.slice().sort((a, b) => {
+      const am = (a.MatchedServices && a.MatchedServices.trim() !== "") ? 0 : 1;
+      const bm = (b.MatchedServices && b.MatchedServices.trim() !== "") ? 0 : 1;
+      return am - bm;
+    }).map(f => {
       const svcMatch = (f.MatchedServices && f.MatchedServices.trim() !== "");
       return `<tr>
         <td><strong style="font-size:13px">${esc(f.Vendor)}</strong></td>
