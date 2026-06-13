@@ -1081,7 +1081,9 @@ if (!META.isAdmin) document.getElementById("wfpAdminNote").style.display = "bloc
 if (META.ilowfpDetected) document.getElementById("ilowfpAlert").style.display = "block";
 
 // ─── Summary tab ──────────────────────────────────────────────────────────────
-document.getElementById("summaryBadge").textContent = FINDINGS.length;
+// Confirmed conflicts = a service name actually matched on this machine.
+const CONFIRMED = FINDINGS.filter(f => f.MatchedServices && f.MatchedServices.trim() !== "");
+document.getElementById("summaryBadge").textContent = CONFIRMED.length;
 const machineRows = [
   ["Machine",        esc(META.machine)],
   ["User",           esc(META.userFull || META.user)],
@@ -1334,14 +1336,14 @@ const vendorRemediation = {
 };
 const recoList = document.getElementById("recoList");
 const recos = [];
-if (FINDINGS.length === 0) {
-  recos.push({ icon:"ok", text:"No conflicts detected. No immediate action required." });
+if (CONFIRMED.length === 0) {
+  recos.push({ icon:"ok", text:"No confirmed conflicts detected (no matching services found). No immediate action required." });
   recos.push({ icon:"info", text:"Re-run periodically when new security software is installed." });
 } else {
-  FINDINGS.forEach(f => {
+  CONFIRMED.forEach(f => {
     const severity = f.Risk.toLowerCase();
     const specific = vendorRemediation[f.Vendor];
-    const affectedStr = esc(f.MatchedDrivers || f.MatchedServices || "n/a");
+    const affectedStr = esc(f.MatchedServices || f.MatchedDrivers || "n/a");
     const text = `<strong>${esc(f.Vendor)}</strong> (${esc(f.Risk)} Risk) — Affected: <code>${affectedStr}</code><br>` +
       `<span style="color:var(--cp-text-soft)">${specific ? specific : "Coordinate with your " + esc(f.Vendor) + " admin to configure exclusions or disable overlapping WFP modules."}</span>`;
     recos.push({ icon: severity === "high" ? "action" : "info", text });
