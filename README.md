@@ -11,6 +11,9 @@ The **Global Secure Access (GSA)** client uses a kernel-mode WFP callout driver 
 
 `Get-GSAConflictReport.ps1` scans the local machine, compares running drivers against a curated conflict database, and generates a **self-contained, interactive HTML report** that is both engineering-level detailed and business-user friendly.
 
+> [!NOTE]
+> This is a **discovery and recommendation** tool. It can only detect conflicts on the **local machine**. If you have already applied a remediation, you may still continue to see the warnings. Always check the [official Microsoft documentation](https://learn.microsoft.com/entra/global-secure-access/) for the latest guidance.
+
 ---
 
 ## ✨ Features
