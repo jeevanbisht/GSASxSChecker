@@ -818,6 +818,11 @@ details[open] summary { color: var(--cp-accent); }
     </div>
   </div>
 
+  <!-- Disclaimer -->
+  <p style="font-size:12px;color:var(--cp-text-soft);line-height:1.6;margin:-8px 0 20px">
+    <strong>Note:</strong> This is a discovery and recommendation tool. It can only detect conflicts on the <strong>local machine</strong>. If you have already applied a remediation, you may still continue to see the warnings. Always check the <a href="https://learn.microsoft.com/entra/global-secure-access/" target="_blank" rel="noopener">official Microsoft documentation</a> for the latest guidance.
+  </p>
+
   <!-- Tabs -->
   <div class="tabs">
     <div class="tab active" onclick="showTab('summary')">Summary</div>
