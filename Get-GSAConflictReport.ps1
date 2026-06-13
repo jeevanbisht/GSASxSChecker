@@ -1156,10 +1156,12 @@ if (SUMMARY_ROWS.length === 0) {
 
 // ─── Findings tab ─────────────────────────────────────────────────────────────
 const findingsList = document.getElementById("findingsList");
-if (FINDINGS.length === 0) {
+// Honor the same confirmed-only default as the Summary tab unless -ShowAll was used.
+const FINDINGS_VIEW = META.showAll ? FINDINGS.slice() : CONFIRMED.slice();
+if (FINDINGS_VIEW.length === 0) {
   document.getElementById("findingsEmpty").style.display = "block";
 } else {
-  findingsList.innerHTML = FINDINGS.map(f => {
+  findingsList.innerHTML = FINDINGS_VIEW.map(f => {
     const rc2 = riskClass(f.Risk);
     const matches = [
       f.MatchedDrivers  ? `<span class="match-group"><span class="match-label">Drivers: </span><span class="match-val">${esc(f.MatchedDrivers)}</span></span>` : "",
