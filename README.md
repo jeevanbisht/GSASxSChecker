@@ -126,6 +126,11 @@ The GSA client registers a **kernel-mode WFP callout driver** that operates at W
 > **Scope:** Detects WFP callout drivers registered via the Windows Filtering Platform API.  
 > Does NOT detect drivers loaded without SCM registration, or non-WFP hooks (NDIS filters, LSPs).
 
+> **Note on shared drivers:** Several products may ship the **same underlying driver** (for example `wintun`,
+> common to many WireGuard-based VPNs). When such a driver is detected, the **Detected Conflicts** list may
+> show **all potential product names** associated with that driver, even if only one of them is actually
+> installed. Use the **Findings** tab to confirm which specific services and binaries are present on the machine.
+
 ---
 
 ## 📸 Sample Report
