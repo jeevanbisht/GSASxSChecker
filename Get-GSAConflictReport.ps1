@@ -1104,13 +1104,25 @@ const summaryList = document.getElementById("summaryList");
 if (FINDINGS.length === 0) {
   summaryList.innerHTML = `<div class="empty"><div class="empty-icon">-</div>No known conflicting products detected.</div>`;
 } else {
-  summaryList.innerHTML = FINDINGS.map(f =>
-    `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--cp-border)">
-      ${badgeHtml(f.Risk)}
-      <strong style="font-size:13px">${esc(f.Vendor)}</strong>
-      <span style="font-size:12px;color:var(--cp-text-soft)">${esc(f.MatchedDrivers||f.MatchedServices||"")}</span>
-    </div>`
-  ).join("") + `<div style="padding-top:10px;font-size:12px;color:var(--cp-text-muted)">Switch to the <strong>Findings</strong> tab for full details and the <strong>Remediation</strong> tab for next steps.</div>`;
+  summaryList.innerHTML =
+    `<table class="data-table">
+       <thead>
+         <tr>
+           <th style="width:140px">PotentialConflict</th>
+           <th>Driver Name</th>
+           <th>Product</th>
+         </tr>
+       </thead>
+       <tbody>` +
+    FINDINGS.map(f =>
+      `<tr>
+        <td>${badgeHtml(f.Risk)}</td>
+        <td style="font-size:12px;color:var(--cp-text-soft)">${esc(f.MatchedDrivers||f.MatchedServices||"—")}</td>
+        <td><strong style="font-size:13px">${esc(f.Vendor)}</strong></td>
+      </tr>`
+    ).join("") +
+    `</tbody></table>` +
+    `<div style="padding-top:10px;font-size:12px;color:var(--cp-text-muted)">Switch to the <strong>Findings</strong> tab for full details and the <strong>Remediation</strong> tab for next steps.</div>`;
 }
 
 // ─── Findings tab ─────────────────────────────────────────────────────────────
