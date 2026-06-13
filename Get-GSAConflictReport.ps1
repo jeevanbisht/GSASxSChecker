@@ -16,7 +16,7 @@
     Digital Guardian, Proofpoint Endpoint DLP, CoSoSys Endpoint Protector,
     ManageEngine DataSecurity Plus, Menlo Security, Ericom Shield,
     ZeroTier, NetBird, Headscale, Cato Networks, VMware Workspace ONE Tunnel,
-    BeyondTrust, NordVPN, ExpressVPN, Surfshark, Private Internet Access,
+    BeyondTrust, NordVPN, ExpressVPN, Surfshark,
     Proton VPN, Mullvad VPN, Cita VPN, and more)
     that are known to conflict with the Microsoft Global Secure Access (GSA) client.
 
@@ -222,7 +222,6 @@ $KnownVendors = @(
     @{ Name="NordVPN";                 Risk="Medium"; Drivers=@("nordvpn","nordlynx","wintun","tap-nordvpn"); Services=@("NordVPN Service","NordVPN","nordvpn-service"); Desc="NordVPN uses NordLynx and virtual tunnel adapters that may create route ownership and DNS conflicts." }
     @{ Name="ExpressVPN";              Risk="Medium"; Drivers=@("expressvpn","expressvpntun");           Services=@("ExpressVPN","ExpressVPNSystemService");                Desc="VPN tunnel and DNS ownership may overlap with GSA." }
     @{ Name="Surfshark";               Risk="Medium"; Drivers=@("surfshark","surfsharkwireguard","wintun"); Services=@("Surfshark Service","Surfshark");                    Desc="WireGuard-based VPN client with route ownership." }
-    @{ Name="Private Internet Access"; Risk="Medium"; Drivers=@("wintun","tap-pia");                    Services=@("PIA Service","Private Internet Access");               Desc="VPN client using WireGuard/OpenVPN tunneling that may overlap with GSA routing." }
     @{ Name="Proton VPN";              Risk="Medium"; Drivers=@("protonvpn","wintun");                  Services=@("ProtonVPN Service","ProtonVPN");                       Desc="VPN tunnel ownership and DNS interception may overlap with GSA." }
     @{ Name="Mullvad VPN";             Risk="Medium"; Drivers=@("mullvad","wintun");                    Services=@("Mullvad VPN","MullvadVPN");                            Desc="WireGuard-based VPN client that may create route conflicts." }
     @{ Name="Cita VPN";                Risk="Medium"; Drivers=@("citavpn","wintun");                    Services=@("CitaVPN","Cita VPN");                                  Desc="Consumer VPN client providing encrypted tunnels and route ownership that may conflict with GSA." }
@@ -1329,7 +1328,6 @@ const vendorRemediation = {
   "NordVPN": "NordVPN uses NordLynx (WireGuard) and TAP adapters. Disconnect NordVPN before establishing GSA tunnels, or configure NordVPN split-tunneling to exclude Microsoft 365, Entra ID, and GSA-managed destinations.",
   "ExpressVPN": "ExpressVPN owns DNS and routing tables while active. Disconnect ExpressVPN before using GSA tunnels, or configure split-tunneling to exclude Microsoft 365, Entra ID, and Private Access destinations.",
   "Surfshark": "Surfshark uses WireGuard tunneling and may conflict with GSA route ownership. Disconnect Surfshark or configure its split-tunneling (Bypasser) to exclude Microsoft 365 and Entra ID traffic.",
-  "Private Internet Access": "PIA VPN uses WireGuard/OpenVPN and may conflict with GSA routing. Disconnect PIA before establishing GSA tunnels, or configure PIA split-tunnel to exclude Microsoft 365 and Entra ID destinations.",
   "Proton VPN": "Proton VPN intercepts DNS and owns routes while active. Disconnect Proton VPN before using GSA tunnels, or configure Proton VPN split-tunneling to exclude Microsoft 365, Entra ID, and GSA-managed destinations.",
   "Mullvad VPN": "Mullvad VPN uses WireGuard and may conflict with GSA traffic steering. Disconnect Mullvad before establishing GSA tunnels, or use Mullvad's split-tunneling to exclude GSA-managed traffic.",
   "Cita VPN": "Cita VPN creates encrypted tunnels that may conflict with GSA routing. Disconnect Cita VPN before using GSA tunnels to avoid route ownership conflicts.",
