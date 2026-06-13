@@ -1107,22 +1107,22 @@ if (FINDINGS.length === 0) {
     `<table class="data-table">
        <thead>
          <tr>
-           <th style="width:140px">PotentialConflict</th>
+           <th>Product</th>
            <th>Driver Name</th>
            <th>Services</th>
            <th style="width:80px">Match</th>
-           <th>Product</th>
+           <th style="width:140px">PotentialConflict</th>
          </tr>
        </thead>
        <tbody>` +
     FINDINGS.map(f => {
       const svcMatch = (f.MatchedServices && f.MatchedServices.trim() !== "");
       return `<tr>
-        <td>${badgeHtml(f.Risk)}</td>
+        <td><strong style="font-size:13px">${esc(f.Vendor)}</strong></td>
         <td style="font-size:12px;color:var(--cp-text-soft)">${esc(f.MatchedDrivers||"—")}</td>
         <td style="font-size:12px;color:var(--cp-text-soft)">${esc(f.MatchedServices||"—")}</td>
         <td><span class="badge ${svcMatch ? "badge-info" : ""}" style="font-weight:600">${svcMatch ? "Yes" : "No"}</span></td>
-        <td><strong style="font-size:13px">${esc(f.Vendor)}</strong></td>
+        <td>${badgeHtml(f.Risk)}</td>
       </tr>`;
     }).join("") +
     `</tbody></table>` +
